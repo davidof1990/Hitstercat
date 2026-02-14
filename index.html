@@ -14,80 +14,83 @@
         body {
             background-color: var(--dark-bg);
             color: white;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
             margin: 0;
-            text-align: center;
+            overflow: hidden;
         }
 
         .container {
             width: 90%;
             max-width: 400px;
-            padding: 20px;
-            background: var(--card-bg);
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            text-align: center;
         }
 
-        h1 { font-size: 1.5rem; margin-bottom: 20px; color: var(--spotify-green); }
-
-        /* El reproductor de Spotify */
-        .player-wrapper {
+        /* EL TRUCO: Un contenedor pequeño y redondo que solo deja ver el centro del player */
+        .player-clipper {
             position: relative;
-            width: 100%;
-            height: 152px; /* Altura estàndard de l'embed de Spotify */
-            background: #000;
-            border-radius: 12px;
-            overflow: hidden;
+            width: 150px;
+            height: 150px;
+            margin: 20px auto;
+            border-radius: 50%; /* Lo hacemos circular */
+            overflow: hidden;    /* Escondemos todo lo que sobresalga */
+            border: 5px solid var(--spotify-green);
+            box-shadow: 0 0 20px rgba(29, 185, 84, 0.4);
         }
 
-        /* LA CORTINA: Aquesta capa tapa el títol i l'artista */
-        #blind {
+        /* Ajustamos el iframe para que el botón de PLAY quede centrado y lo demás fuera */
+        iframe {
+            position: absolute;
+            top: -25px;   /* Movemos el reproductor hacia arriba */
+            left: -10px;  /* Lo centramos lateralmente */
+            width: 300px; /* Lo hacemos más ancho para que el texto quede "fuera de plano" */
+            height: 200px;
+            border: none;
+        }
+
+        /* Una capa invisible encima para que no puedan clicar en el texto por error */
+        .touch-layer {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: var(--spotify-green);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 10;
-            transition: transform 0.5s ease-in-out;
-            cursor: pointer;
+            z-index: 5;
+            background: transparent;
         }
 
-        #blind span {
-            font-weight: bold;
-            font-size: 1.2rem;
-            color: black;
+        .info-text {
+            color: #b3b3b3;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
         }
 
-        #blind small { color: rgba(0,0,0,0.6); margin-top: 5px; }
-
-        /* Botó per revelar la solució */
         .btn-reveal {
-            margin-top: 25px;
-            background-color: transparent;
-            border: 2px solid white;
-            color: white;
-            padding: 10px 20px;
+            margin-top: 30px;
+            background: var(--spotify-green);
+            border: none;
+            color: black;
+            padding: 12px 25px;
             border-radius: 30px;
-            cursor: pointer;
             font-weight: bold;
-            transition: 0.3s;
+            cursor: pointer;
+            font-size: 1rem;
         }
 
-        .btn-reveal:active { background-color: white; color: black; }
+        #solution-area {
+            display: none;
+            margin-top: 20px;
+            padding: 15px;
+            background: #282828;
+            border-radius: 10px;
+            border: 1px solid var(--spotify-green);
+        }
 
         .hidden { display: none; }
-        
-        #instructions { font-size: 0.9rem; color: #b3b3b3; margin-bottom: 10px; }
     </style>
 </head>
 <body>
@@ -96,52 +99,41 @@
         <h1>Hitster Català</h1>
         
         <div id="game-area" class="hidden">
-            <p id="instructions">Escolta la música i endevina l'any!</p>
+            <p class="info-text">Prem el botó central per escoltar</p>
             
-            <div class="player-wrapper">
-                <div id="blind" onclick="hideBlind()">
-                    <span>🎵 TOCAR PER REPRODUIR</span>
-                    <small>(Això taparà el títol)</small>
-                </div>
-                
-                <iframe id="spotify-player" src="" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+            <div class="player-clipper">
+                <iframe id="spotify-player" src="" allow="autoplay; encrypted-media"></iframe>
             </div>
 
             <button class="btn-reveal" onclick="showSolution()">REVELAR SOLUCIÓ</button>
-            <p id="solution-text" class="hidden" style="margin-top:15px; font-weight:bold;">
-                🤔 Mira la carta per comprovar l'any!
-            </p>
+            
+            <div id="solution-area">
+                <p>🔍 <strong>L'any i la cançó són a la carta!</strong></p>
+                <p style="font-size: 0.8rem; color: #aaa;">(Spotify no permet amagar el títol completament si es clica fora del play, mira només la carta!)</p>
+            </div>
         </div>
 
         <div id="no-id-message">
-            <p>Escaneja un codi QR de les cartes per començar a jugar.</p>
+            <p>Escaneja un codi QR per començar.</p>
         </div>
     </div>
 
     <script>
-        // 1. Obtenir el track ID de la URL (ex: ?id=3n38X...)
         const urlParams = new URLSearchParams(window.location.search);
         const trackId = urlParams.get('id');
 
         if (trackId) {
-            // Mostrar l'àrea de joc i amagar el missatge d'error
             document.getElementById('game-area').classList.remove('hidden');
             document.getElementById('no-id-message').classList.add('hidden');
             
-            // Configurar l'iframe amb la cançó corresponent
+            // Usamos la versión "compacta" del reproductor de Spotify
             const player = document.getElementById('spotify-player');
             player.src = `https://open.spotify.com/embed/track/${trackId}?utm_source=generator&theme=0`;
         }
 
-        function hideBlind() {
-            // Quan toquen la cortina, aquesta llisca cap amunt però deixa el reproductor operatiu
-            document.getElementById('blind').style.transform = 'translateY(-100%)';
-        }
-
         function showSolution() {
-            document.getElementById('solution-text').classList.remove('hidden');
-            // També fem que la cortina baixi una mica o s'esvaeixi si es vol
-            alert("Recorda: L'any és a la cara B de la carta!");
+            const sol = document.getElementById('solution-area');
+            sol.style.display = 'block';
         }
     </script>
 </body>
