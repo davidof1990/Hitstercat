@@ -17,35 +17,55 @@
             margin: 0;
         }
 
-        .titol { margin-bottom: 30px; color: #1DB954; font-weight: 300; letter-spacing: 2px; }
+        .status { margin-bottom: 20px; color: #1DB954; font-size: 1.2rem; }
 
-        /* EL BÚNQUER: Un cercle perfecte on només hi cap el botó de Play */
-        .clipper {
-            width: 100px;
-            height: 100px;
+        /* BOTÓ DE PLAY PERSONALITZAT */
+        .play-button {
+            width: 150px;
+            height: 150px;
+            background-color: #1DB954;
             border-radius: 50%;
-            border: 4px solid #1DB954;
-            overflow: hidden; /* Això talla tot el que sobra de Spotify */
-            position: relative;
-            background-color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 0 30px rgba(29, 185, 84, 0.4);
+            border: none;
+            outline: none;
         }
 
-        /* L'IFRAME: El fem gegant i el movem per centrar el botó de Play al cercle */
-        iframe {
-            position: absolute;
-            top: -72px;  /* Ajusta amunt/avall */
-            left: -10px; /* Ajusta esquerra/dreta */
-            width: 300px;
-            height: 380px;
-            border: none;
+        .play-icon {
+            width: 0; height: 0;
+            border-top: 25px solid transparent;
+            border-bottom: 25px solid transparent;
+            border-left: 40px solid black;
+            margin-left: 10px;
         }
+
+        .stop-icon {
+            width: 40px; height: 40px;
+            background-color: black;
+            display: none;
+        }
+
+        .loader {
+            border: 5px solid #333;
+            border-top: 5px solid #1DB954;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            display: none;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         .btn-reveal {
             margin-top: 50px;
             background: none;
-            border: 1px solid #333;
-            color: #555;
-            padding: 8px 20px;
+            border: 1px solid #444;
+            color: #666;
+            padding: 10px 20px;
             border-radius: 20px;
             cursor: pointer;
         }
@@ -53,28 +73,76 @@
 </head>
 <body>
 
-    <h1 class="titol">HITSTER CATALÀ</h1>
+    <div id="main-content" style="display:none; text-align: center;">
+        <div class="status" id="state-text">Llest per jugar</div>
+        
+        <button class="play-button" id="master-btn" onclick="togglePlay()">
+            <div class="play-icon" id="icon-play"></div>
+            <div class="stop-icon" id="icon-stop"></div>
+            <div class="loader" id="loader"></div>
+        </button>
 
-    <div class="clipper">
-        <iframe id="reproductor" src="" allow="autoplay; encrypted-media"></iframe>
+        <audio id="audio-player"></audio>
+
+        <button class="btn-reveal" onclick="alert('Mira la carta per veure el resultat!')">REVELAR SOLUCIÓ</button>
     </div>
 
-    <button class="btn-reveal" onclick="alert('L\'any és a la carta!')">REVELAR SOLUCIÓ</button>
+    <div id="error-msg" style="padding: 20px; text-align: center;">
+        Busca una cançó...
+    </div>
 
     <script>
         const params = new URLSearchParams(window.location.search);
-        const id = params.get('id');
+        const searchQuery = params.get('s'); // Ara busquem per text!
+        const audio = document.getElementById('audio-player');
+        const playBtn = document.getElementById('master-btn');
 
-        if (id) {
-            // Netegem l'ID per si ve amb el format "spotify:track:..."
-            const cleanId = id.replace('spotify:track:', '');
-            
-            // LA URL CORRECTA: https://open.spotify.com/embed/track/ID
-            const player = document.getElementById('reproductor');
-            player.src = `https://open.spotify.com/embed/track/${cleanId}?utm_source=generator&theme=0`;
-        } else {
-            document.body.innerHTML = "<h1>Posa un ID a la URL!</h1>";
+        if (searchQuery) {
+            document.getElementById('error-msg').style.display = 'none';
+            document.getElementById('main-content').style.display = 'block';
+            searchSong(searchQuery);
         }
+
+        async function searchSong(query) {
+            showLoading(true);
+            try {
+                // Busquem a l'API d'iTunes/Apple (és pública i ràpida)
+                const response = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&limit=1&entity=song`);
+                const data = await response.json();
+
+                if (data.results.length > 0) {
+                    audio.src = data.results[0].previewUrl;
+                    document.getElementById('state-text').innerText = "Cançó carregada 🔒";
+                } else {
+                    document.getElementById('state-text').innerText = "No s'ha trobat la música";
+                }
+            } catch (e) {
+                document.getElementById('state-text').innerText = "Error de connexió";
+            }
+            showLoading(false);
+        }
+
+        function togglePlay() {
+            if (audio.paused) {
+                audio.play();
+                document.getElementById('icon-play').style.display = 'none';
+                document.getElementById('icon-stop').style.display = 'block';
+            } else {
+                audio.pause();
+                document.getElementById('icon-play').style.display = 'block';
+                document.getElementById('icon-stop').style.display = 'none';
+            }
+        }
+
+        function showLoading(isLoading) {
+            document.getElementById('loader').style.display = isLoading ? 'block' : 'none';
+            document.getElementById('icon-play').style.display = isLoading ? 'none' : 'block';
+        }
+
+        audio.onended = () => {
+            document.getElementById('icon-play').style.display = 'block';
+            document.getElementById('icon-stop').style.display = 'none';
+        };
     </script>
 </body>
 </html>
