@@ -8,7 +8,7 @@
         body {
             background-color: #121212;
             color: white;
-            font-family: sans-serif;
+            font-family: 'Segoe UI', sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -17,48 +17,35 @@
             margin: 0;
         }
 
-        /* CONTENIDOR DEL REPRODUCTOR */
-        .player-box {
+        .titol { margin-bottom: 30px; color: #1DB954; font-weight: 300; letter-spacing: 2px; }
+
+        /* EL BÚNQUER: Un cercle perfecte on només hi cap el botó de Play */
+        .clipper {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 4px solid #1DB954;
+            overflow: hidden; /* Això talla tot el que sobra de Spotify */
             position: relative;
-            width: 300px;
-            height: 80px;
-            background: #282828;
-            border-radius: 12px;
-            overflow: hidden;
-            border: 2px solid #1DB954;
+            background-color: #000;
         }
 
-        /* L'IFRAME REAL DE SPOTIFY */
+        /* L'IFRAME: El fem gegant i el movem per centrar el botó de Play al cercle */
         iframe {
-            width: 100%;
-            height: 80px;
+            position: absolute;
+            top: -72px;  /* Ajusta amunt/avall */
+            left: -10px; /* Ajusta esquerra/dreta */
+            width: 300px;
+            height: 380px;
             border: none;
         }
 
-        /* LA CAPA QUE TAPA EL TEXT PERÒ DEIXA CLICAR */
-        .mask {
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 220px; /* Tapem només la part del text (la dreta) */
-            height: 80px;
-            background: #282828; /* Color de fons de Spotify */
-            z-index: 10;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            pointer-events: none; /* EL TRUC: El clic atravessa aquesta capa */
-            color: #1DB954;
-            font-weight: bold;
-            font-size: 0.8rem;
-        }
-
         .btn-reveal {
-            margin-top: 40px;
-            background: #282828;
-            color: #888;
-            border: 1px solid #444;
-            padding: 10px 20px;
+            margin-top: 50px;
+            background: none;
+            border: 1px solid #333;
+            color: #555;
+            padding: 8px 20px;
             border-radius: 20px;
             cursor: pointer;
         }
@@ -66,33 +53,28 @@
 </head>
 <body>
 
-    <h2 style="margin-bottom: 20px; font-weight: 300;">Hitster Català</h2>
+    <h1 class="titol">HITSTER CATALÀ</h1>
 
-    <div class="player-box">
+    <div class="clipper">
         <iframe id="reproductor" src="" allow="autoplay; encrypted-media"></iframe>
-        
-        <div class="mask">
-            <span>AUDIÈNCIA CEGA 🔒</span>
-        </div>
     </div>
 
     <button class="btn-reveal" onclick="alert('L\'any és a la carta!')">REVELAR SOLUCIÓ</button>
 
     <script>
-        // Obtenim l'ID de la URL
         const params = new URLSearchParams(window.location.search);
         const id = params.get('id');
 
         if (id) {
-            // NETEGEM L'ID: Per si de cas poses "spotify:track:..." sencers
+            // Netegem l'ID per si ve amb el format "spotify:track:..."
             const cleanId = id.replace('spotify:track:', '');
             
-            // URL OFICIAL DE SPOTIFY (CORREGIDA)
-            document.getElementById('reproductor').src = `https://open.spotify.com/embed/track/${cleanId}?utm_source=generator&theme=0`;
+            // LA URL CORRECTA: https://open.spotify.com/embed/track/ID
+            const player = document.getElementById('reproductor');
+            player.src = `https://open.spotify.com/embed/track/${cleanId}?utm_source=generator&theme=0`;
         } else {
-            document.body.innerHTML = "<h1>Falta l'ID de la cançó!</h1>";
+            document.body.innerHTML = "<h1>Posa un ID a la URL!</h1>";
         }
     </script>
-
 </body>
 </html>
