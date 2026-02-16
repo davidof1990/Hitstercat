@@ -8,7 +8,7 @@
         body {
             background-color: #121212;
             color: white;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -17,133 +17,96 @@
             margin: 0;
         }
 
-        .status { margin-bottom: 30px; color: #fa2d48; font-weight: bold; letter-spacing: 1px; }
+        /* CONTENIDOR DEL REPRODUCTOR */
+        .player-box {
+            position: relative;
+            width: 300px;
+            height: 80px;
+            background: #282828;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid #1DB954;
+        }
 
-        .play-button {
-            width: 140px;
-            height: 140px;
-            background-color: #fa2d48; /* Color vermell Apple Music */
-            border-radius: 50%;
+        /* L'IFRAME REAL DE SPOTIFY */
+        iframe {
+            width: 100%;
+            height: 80px;
+            border: none;
+        }
+
+        /* LA CAPA QUE TAPA EL TEXT PERÒ DEIXA CLICAR */
+        .mask {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 220px; /* Tapem només la part del text (la dreta) */
+            height: 80px;
+            background: #282828; /* Color de fons de Spotify */
+            z-index: 10;
             display: flex;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 0 40px rgba(250, 45, 72, 0.3);
-            border: none;
-            transition: transform 0.2s ease;
+            pointer-events: none; /* EL TRUC: El clic atravessa aquesta capa */
         }
 
-        .play-button:active { transform: scale(0.95); }
-
-        .play-icon {
-            width: 0; height: 0;
-            border-top: 25px solid transparent;
-            border-bottom: 25px solid transparent;
-            border-left: 40px solid white;
-            margin-left: 10px;
+        /* NOU ESTIL PER AL TEXT DE NEÓ */
+        .neon-text {
+            font-family: sans-serif;
+            font-weight: bold;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            color: #fff;
+            text-shadow:
+                0 0 5px #fff,
+                0 0 10px #fff,
+                0 0 20px #ff007f,
+                0 0 30px #ff007f,
+                0 0 40px #ff007f,
+                0 0 55px #ff007f,
+                0 0 75px #ff007f;
         }
-
-        .stop-icon {
-            width: 40px; height: 40px;
-            background-color: white;
-            display: none;
-        }
-
-        .loader {
-            border: 4px solid rgba(255,255,255,0.1);
-            border-top: 4px solid white;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            display: none;
-        }
-
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         .btn-reveal {
-            margin-top: 60px;
-            background: none;
-            border: 1px solid #333;
-            color: #555;
-            padding: 10px 25px;
-            border-radius: 30px;
-            font-size: 0.8rem;
+            margin-top: 40px;
+            background: #282828;
+            color: #888;
+            border: 1px solid #444;
+            padding: 10px 20px;
+            border-radius: 20px;
             cursor: pointer;
         }
     </style>
 </head>
 <body>
 
-    <div id="game-ui" style="display:none; text-align:center;">
-        <div class="status" id="state-text">PREPARAT PER JUGAR</div>
+    <h2 style="margin-bottom: 20px; font-weight: 300;">Hitster Català</h2>
+
+    <div class="player-box">
+        <iframe id="reproductor" src="" allow="autoplay; encrypted-media"></iframe>
         
-        <button class="play-button" id="master-btn" onclick="togglePlay()">
-            <div class="play-icon" id="icon-play"></div>
-            <div class="stop-icon" id="icon-stop"></div>
-            <div class="loader" id="loader"></div>
-        </button>
-
-        <audio id="audio-player"></audio>
-
-        <button class="btn-reveal" onclick="alert('Mira la carta per veure el resultat!')">REVELAR SOLUCIÓ</button>
+        <div class="mask">
+            <span class="neon-text">HisterCAT</span>
+        </div>
     </div>
 
-    <div id="intro-msg" style="text-align:center; padding:20px;">
-        <p>Escaneja una carta...</p>
-    </div>
+    <button class="btn-reveal" onclick="alert('L\'any és a la carta!')">REVELAR SOLUCIÓ</button>
 
     <script>
+        // Obtenim l'ID de la URL
         const params = new URLSearchParams(window.location.search);
-        const appleId = params.get('id'); 
-        const audio = document.getElementById('audio-player');
+        const id = params.get('id');
 
-        if (appleId) {
-            document.getElementById('intro-msg').style.display = 'none';
-            document.getElementById('game-ui').style.display = 'block';
-            loadAppleSong(appleId);
+        if (id) {
+            // NETEGEM L'ID: Per si de cas poses "spotify:track:..." sencers
+            const cleanId = id.replace('spotify:track:', '');
+            
+            // URL OFICIAL DE SPOTIFY (CORREGIDA)
+            document.getElementById('reproductor').src = `https://open.spotify.com/embed/track/${cleanId}?utm_source=generator&theme=0`;
+        } else {
+            document.body.innerHTML = "<h1>Falta l'ID de la cançó!</h1>";
         }
-
-        async function loadAppleSong(id) {
-            showLoading(true);
-            try {
-                // Truquem a l'API d'iTunes per obtenir el previewUrl directe
-                const response = await fetch(`https://itunes.apple.com/lookup?id=${id}`);
-                const data = await response.json();
-
-                if (data.results && data.results.length > 0) {
-                    audio.src = data.results[0].previewUrl;
-                    document.getElementById('state-text').innerText = "HisterCAT";
-                } else {
-                    document.getElementById('state-text').innerText = "ERROR: CANÇÓ NO TROBADA";
-                }
-            } catch (e) {
-                document.getElementById('state-text').innerText = "ERROR DE CONNEXIÓ";
-            }
-            showLoading(false);
-        }
-
-        function togglePlay() {
-            if (audio.paused) {
-                audio.play();
-                updateUI(true);
-            } else {
-                audio.pause();
-                updateUI(false);
-            }
-        }
-
-        function updateUI(isPlaying) {
-            document.getElementById('icon-play').style.display = isPlaying ? 'none' : 'block';
-            document.getElementById('icon-stop').style.display = isPlaying ? 'block' : 'none';
-        }
-
-        function showLoading(isLoading) {
-            document.getElementById('loader').style.display = isLoading ? 'block' : 'none';
-            document.getElementById('icon-play').style.display = isLoading ? 'none' : 'block';
-        }
-
-        audio.onended = () => updateUI(false);
     </script>
+
 </body>
 </html>
