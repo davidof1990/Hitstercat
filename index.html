@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sona bé! 🎶</title>
-    <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
         body {
             background-color: #121212;
@@ -19,7 +18,6 @@
             overflow: hidden;
         }
 
-        /* LOGO NEÓ */
         .neon-logo {
             font-weight: bold;
             font-size: 2.5rem;
@@ -30,7 +28,6 @@
             text-align: center;
         }
 
-        /* BOTÓ PLAY PRINCIPAL */
         .play-button {
             width: 120px;
             height: 120px;
@@ -48,14 +45,13 @@
         .play-icon { width: 0; height: 0; border-top: 20px solid transparent; border-bottom: 20px solid transparent; border-left: 30px solid white; margin-left: 8px; }
         .stop-icon { width: 30px; height: 30px; background-color: white; border-radius: 4px; display: none; }
 
-        /* TARGETA DE SOLUCIÓ */
         #solution-card { display: none; flex-direction: column; align-items: center; animation: fadeIn 0.8s ease forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
         .album-art { width: 200px; height: 200px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
         .track-name { font-size: 1.5rem; font-weight: bold; text-align: center; padding: 0 20px; }
         .artist-name { font-size: 1.2rem; color: #fa2d48; margin-bottom: 10px; }
 
-        /* BOTONS */
         .btn {
             background: rgba(255,255,255,0.1);
             border: 1px solid #444;
@@ -71,30 +67,29 @@
             margin-top: 20px;
         }
 
-        .btn:active { transform: scale(0.95); background: rgba(255,255,255,0.2); }
-        .btn-start { background-color: #fa2d48; border: none; font-size: 1rem; padding: 18px 40px; box-shadow: 0 5px 20px rgba(250, 45, 72, 0.3); color: white; }
+        .btn-start { background-color: #fa2d48; border: none; font-size: 1rem; color: white; }
         .btn-next { background-color: #fa2d48; color: white; border: none; display: none; }
 
-        /* ESCÀNER */
         #reader-wrapper { position: relative; width: 320px; display: none; }
         #reader { width: 100%; border-radius: 20px; overflow: hidden; border: 2px solid #ff007f; background: #000; }
         .scan-line { position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: #fa2d48; box-shadow: 0 0 10px #fa2d48; z-index: 10; animation: scanning 2s linear infinite; }
         @keyframes scanning { 0% { top: 0%; } 50% { top: 100%; } 100% { top: 0%; } }
         
+        /* Utilitzem classes per amagar i mostrar */
         .hidden { display: none !important; }
-        .subtext { color: #666; font-size: 0.9rem; margin-top: 10px; }
+        .flex { display: flex !important; }
     </style>
 </head>
 <body>
 
-    <div id="landing-ui" style="display:none; flex-direction: column; align-items: center; text-align: center;">
+    <div id="landing-ui" style="display: flex; flex-direction: column; align-items: center; text-align: center;">
         <div class="neon-logo">Sona bé!</div>
         <p style="color: #aaa; max-width: 250px; margin-bottom: 30px;">El joc de cartes musical en català</p>
         <button class="btn btn-start" onclick="startScanner()">Començar a jugar!</button>
-        <p class="subtext">Prepara les teves cartes 🃏</p>
+        <p style="color: #666; font-size: 0.8rem; margin-top: 15px;">Prepara les teves cartes 🃏</p>
     </div>
 
-    <div id="game-ui" style="display:none; flex-direction: column; align-items: center;">
+    <div id="game-ui" style="display: none; flex-direction: column; align-items: center;">
         <div id="logo-header" class="neon-logo" style="font-size: 1.8rem;">Sona bé!</div>
 
         <div id="solution-card">
@@ -112,11 +107,50 @@
         <button class="btn btn-next" id="next-btn" onclick="startScanner()">Següent cançó 📷</button>
     </div>
 
-    <div id="scanner-ui" style="display:none; flex-direction: column; align-items: center;">
+    <div id="scanner-ui" style="display: none; flex-direction: column; align-items: center;">
         <div class="neon-logo" style="font-size: 1.2rem; margin-bottom: 20px;">Escaneja el QR</div>
         <div id="reader-wrapper">
             <div id="reader"></div>
             <div class="scan-line"></div>
         </div>
-        <button class="btn" onclick="location.reload()" style="margin-top: 30px; width: 150px;">Tornar</button>
+        <button class="btn" onclick="location.href='https://davidof1990.github.io/Histercat/'" style="margin-top: 30px; width: 150px;">Tornar</button>
     </div>
+
+    <audio id="audio-player"></audio>
+
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const appleId = params.get('id'); 
+        const audio = document.getElementById('audio-player');
+        let songData = null;
+        let html5QrCode = null;
+
+        // Si hi ha ID, amaguem l'inici i ensenyem el joc
+        if (appleId) {
+            document.getElementById('landing-ui').style.display = 'none';
+            document.getElementById('game-ui').style.display = 'flex';
+            loadAppleSong(appleId);
+        }
+
+        async function loadAppleSong(id) {
+            try {
+                const response = await fetch(`https://itunes.apple.com/lookup?id=${id}`);
+                const data = await response.json();
+                if (data.results && data.results.length > 0) {
+                    songData = data.results[0];
+                    audio.src = songData.previewUrl;
+                    document.getElementById('album-img').src = songData.artworkUrl100.replace('100x100', '600x600');
+                    document.getElementById('song-title').innerText = songData.trackName;
+                    document.getElementById('song-artist').innerText = songData.artistName;
+                }
+            } catch (e) { console.error("Error carregant cançó", e); }
+        }
+
+        function togglePlay() {
+            if (audio.paused) { audio.play(); updateUI(true); } 
+            else { audio.pause(); updateUI(false); }
+        }
+
+        function updateUI(isPlaying) {
+            document.getElementById('icon-play').style.display
