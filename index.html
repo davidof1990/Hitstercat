@@ -19,6 +19,7 @@
             overflow: hidden;
         }
 
+        /* LOGOTIP NEÓ VIBRANT */
         .neon-logo {
             font-weight: bold; font-size: 2.8rem; text-transform: uppercase; color: #fff;
             margin-bottom: 20px; text-shadow: 0 0 10px #fff, 0 0 20px #ff007f, 0 0 40px #ff007f;
@@ -31,6 +32,7 @@
         }
         .flickering-on { animation: flickering 2s infinite alternate-reverse; }
 
+        /* BOTONS I UI */
         .play-button {
             width: 130px; height: 130px; background-color: #fa2d48; border-radius: 50%;
             display: flex; align-items: center; justify-content: center; cursor: pointer;
@@ -47,7 +49,6 @@
         .track-name { font-size: 1.6rem; font-weight: bold; text-align: center; padding: 0 15px; line-height: 1.2; }
         .artist-name { font-size: 1.2rem; color: #fa2d48; margin-bottom: 15px; }
 
-        /* ESTIL DE L'ANY (BADGE) */
         .year-badge {
             background-color: white; color: black; font-weight: 900; font-size: 2.2rem;
             padding: 5px 35px; border-radius: 15px; margin-bottom: 15px;
@@ -58,21 +59,28 @@
             background: rgba(255,255,255,0.1); border: 1px solid #444; color: #eee;
             padding: 15px 30px; border-radius: 40px; cursor: pointer; font-weight: bold;
             text-transform: uppercase; font-size: 0.8rem; width: 250px; margin-top: 15px;
+            transition: all 0.2s;
         }
-        .btn-start { background-color: #fa2d48; border: none; font-size: 1.1rem; color: white; }
+        .btn:active { transform: scale(0.95); }
+        .btn-start { background-color: #fa2d48; border: none; font-size: 1.1rem; color: white; margin-bottom: 5px; }
+        .btn-random { background: transparent; border: 2px solid #fa2d48; color: #fa2d48; }
         .btn-next { background-color: #fa2d48; color: white; border: none; display: none; }
 
         #reader-wrapper { position: relative; width: 320px; display: none; border: 3px solid #ff007f; border-radius: 20px; overflow: hidden; }
         #reader { width: 100%; background: #000; }
         .scan-line { position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: #fa2d48; box-shadow: 0 0 15px #fa2d48; z-index: 10; animation: scanning 2s infinite; }
         @keyframes scanning { 0%, 100% { top: 0%; } 50% { top: 100%; } }
+        
+        #random-status { font-size: 0.7rem; color: #fa2d48; margin-top: 15px; text-transform: uppercase; letter-spacing: 1px; min-height: 1.2em; }
     </style>
 </head>
 <body>
 
     <div id="landing-ui" style="display: flex; flex-direction: column; align-items: center;">
-        <div class="neon-logo">Sona bé!</div>
-        <button class="btn btn-start" onclick="startScanner()">Començar a jugar!</button>
+        <div class="neon-logo flickering-on">Sona bé!</div>
+        <button class="btn btn-start" onclick="startScanner()">Escanejar BIDI 📷</button>
+        <button class="btn btn-random" id="btn-random-play" onclick="jugarAleatori()">🎲 Mode Aleatori (Web)</button>
+        <div id="random-status"></div>
     </div>
 
     <div id="game-ui" style="display: none; flex-direction: column; align-items: center;">
@@ -92,13 +100,13 @@
         </button>
 
         <button class="btn" id="reveal-btn" onclick="revealSolution()">Revelar solució</button>
-        <button class="btn btn-next" id="next-btn" onclick="startScanner()">Següent cançó 📷</button>
+        <button class="btn btn-next" id="next-btn" onclick="location.reload()">Següent cançó 🔄</button>
     </div>
 
     <div id="scanner-ui" style="display: none; flex-direction: column; align-items: center;">
         <div class="neon-logo" style="font-size: 1.2rem;">Escaneja el QR</div>
         <div id="reader-wrapper"><div id="reader"></div><div class="scan-line"></div></div>
-        <button class="btn" onclick="location.href='https://davidof1990.github.io/sonabe/'">Tornar</button>
+        <button class="btn" onclick="location.reload()">Tornar</button>
     </div>
 
     <audio id="audio-player" preload="auto"></audio>
@@ -106,19 +114,15 @@
     <script>
         const params = new URLSearchParams(window.location.search);
         const appleId = params.get('id'); 
-        const manualYear = params.get('y'); // Any de la carta
+        const manualYear = params.get('y'); 
         const audio = document.getElementById('audio-player');
         let songData = null;
 
+        // Si hi ha ID a la URL, carreguem el reproductor
         if (appleId) {
             document.getElementById('landing-ui').style.display = 'none';
             document.getElementById('game-ui').style.display = 'flex';
-            
-            // PRIORITAT 1: Si tenim any manual a la URL, el posem JA MATEIX
-            if (manualYear) {
-                document.getElementById('song-year').innerText = manualYear;
-            }
-            
+            if (manualYear) document.getElementById('song-year').innerText = manualYear;
             loadAppleSong(appleId);
         }
 
@@ -126,59 +130,38 @@
             try {
                 const response = await fetch(`https://itunes.apple.com/lookup?id=${id}&country=es`);
                 const data = await response.json();
-                
                 if (data.results && data.results.length > 0) {
                     songData = data.results[0];
                     if (songData.previewUrl) { 
                         audio.src = songData.previewUrl; 
                         document.getElementById('loader-text').innerText = "Àudio llest 🔒"; 
                     }
-                    
                     document.getElementById('album-img').src = songData.artworkUrl100.replace('100x100', '600x600');
                     document.getElementById('song-title').innerText = songData.trackName;
                     document.getElementById('song-artist').innerText = songData.artistName;
-                    
-                    // PRIORITAT 2: Si NO teníem any manual, agafem el d'Apple com a "Pla B"
                     if (!manualYear && songData.releaseDate) {
                         document.getElementById('song-year').innerText = songData.releaseDate.substring(0, 4);
                     }
                 }
-            } catch (e) { console.error("Error xarxa:", e); }
+            } catch (e) { console.error("Error iTunes API:", e); }
         }
 
-        function togglePlay() {
-            if (!audio.src) return;
-            if (audio.paused) { audio.play(); updateUI(true); } 
-            else { audio.pause(); updateUI(false); }
-        }
+        // --- FUNCIÓ PER AL MODE ALEATORI ---
+        async function jugarAleatori() {
+            const status = document.getElementById('random-status');
+            const btn = document.getElementById('btn-random-play');
+            const urlSheet = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTSKbhu-nwl5Mrq1-_WiGPQyiflqbb3a5C9BRTTDWgwMNqTur9_8GBODKlJC9-OHol7EhIzap9Yv_lF/pub?output=csv";
 
-        function updateUI(isPlaying) {
-            document.getElementById('icon-play').style.display = isPlaying ? 'none' : 'block';
-            document.getElementById('icon-stop').style.display = isPlaying ? 'block' : 'none';
-            const logo = document.getElementById('logo-header');
-            if (isPlaying) logo.classList.add('flickering-on');
-            else logo.classList.remove('flickering-on');
-        }
+            try {
+                btn.disabled = true;
+                status.innerText = "Triant cançó de la base de dades...";
 
-        function revealSolution() {
-            if (!songData) return;
-            document.getElementById('logo-header').style.display = 'none';
-            document.getElementById('loader-text').style.display = 'none';
-            document.getElementById('reveal-btn').style.display = 'none';
-            document.getElementById('solution-card').style.display = 'flex';
-            document.getElementById('next-btn').style.display = 'block';
-        }
-
-        function startScanner() {
-            document.getElementById('landing-ui').style.display = 'none';
-            document.getElementById('game-ui').style.display = 'none';
-            document.getElementById('scanner-ui').style.display = 'flex';
-            document.getElementById('reader-wrapper').style.display = 'block';
-            const html5QrCode = new Html5Qrcode("reader");
-            html5QrCode.start({ facingMode: "environment" }, { fps: 20, qrbox: 250 }, 
-            (text) => { html5QrCode.stop().then(() => { window.location.href = text; }); });
-        }
-        audio.onended = () => updateUI(false);
-    </script>
-</body>
-</html>
+                const resposta = await fetch(urlSheet);
+                const text = await resposta.text();
+                const files = text.split("\n").filter(f => f.trim() !== "");
+                
+                // Mapegem la columna G (índex 6) que conté la URL completa de GitHub
+                const cançons = files.slice(1).map(fila => {
+                    const col = fila.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                    return col[6] ? col[6].replace(/"/g, "").trim() : null;
+                }).filter(url =>
