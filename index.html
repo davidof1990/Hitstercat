@@ -123,6 +123,7 @@
         const audio = document.getElementById('audio-player');
         let songData = null;
         let fadeInterval = null;
+        let isFadingOut = false; // Flag per evitar bucles al final
 
         if (appleId) {
             document.getElementById('landing-ui').style.display = 'none';
@@ -151,11 +152,13 @@
             } catch (e) { console.error(e); }
         }
 
-        // --- LÒGICA DE FADE (VOLUM GRADUAL) ---
-        function changeVolume(target, duration) {
+        // --- LÒGICA DE FADE MILLORADA ---
+        function changeVolume(target, duration, callback) {
             if (fadeInterval) clearInterval(fadeInterval);
+            
             const step = 0.05; 
-            const intervalTime = duration / (Math.abs(target - audio.volume) / step);
+            const stepsCount = Math.abs(target - audio.volume) / step;
+            const intervalTime = duration / stepsCount;
 
             fadeInterval = setInterval(() => {
                 if (audio.volume < target) {
@@ -166,32 +169,48 @@
 
                 if (audio.volume === target) {
                     clearInterval(fadeInterval);
-                    if (target === 0) audio.pause();
+                    fadeInterval = null;
+                    if (callback) callback();
                 }
             }, intervalTime || 50);
         }
 
-        // Monitoritzem el final de la cançó per fer el Fade Out
+        // MONITORITZACIÓ DEL FINAL (FADE OUT AUTOMÀTIC)
         audio.ontimeupdate = () => {
-            if (audio.duration && audio.duration - audio.currentTime < 2.5 && audio.volume > 0 && !fadeInterval) {
-                changeVolume(0, 2000); // Fa el baixada de volum 2.5 segons abans d'acabar
+            // Si queden menys de 3 segons i encara no hem començat el fade out
+            if (audio.duration && (audio.duration - audio.currentTime < 3) && !isFadingOut && audio.volume > 0.5) {
+                isFadingOut = true;
+                changeVolume(0, 2500, () => {
+                    audio.pause();
+                    updateUI(false);
+                });
             }
         };
 
         function togglePlay() {
             if (!audio.src) return;
+            
             if (audio.paused) { 
+                isFadingOut = false;
                 audio.volume = 0;
                 audio.play(); 
-                changeVolume(1, 2000); // Fade in de 2 segons
+                changeVolume(1, 1500); // Fade in una mica més ràpid (1.5s)
                 updateUI(true); 
             } else { 
-                changeVolume(0, 1000); // Fade out ràpid si pauses manualment
-                updateUI(false); 
+                changeVolume(0, 800, () => {
+                    audio.pause();
+                    updateUI(false);
+                });
             }
         }
 
-        // LÒGICA PER AL MODE ONLINE (ALEATORI)
+        audio.onended = () => {
+            updateUI(false);
+            isFadingOut = false;
+            audio.volume = 1; // Resetejem volum per la pròxima
+        };
+
+        // --- RESTA DE FUNCIONS (ALZATORI, SCANNER, ETC.) ---
         async function jugarAleatori() {
             const status = document.getElementById('status-msg');
             const urlSheet = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTSKbhu-nwl5Mrq1-_WiGPQyiflqbb3a5C9BRTTDWgwMNqTur9_8GBODKlJC9-OHol7EhIzap9Yv_lF/pub?output=csv";
@@ -256,10 +275,6 @@
                 }); 
             });
         }
-        audio.onended = () => {
-            updateUI(false);
-            fadeInterval = null;
-        };
     </script>
 </body>
 </html>
