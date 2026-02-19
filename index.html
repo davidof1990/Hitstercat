@@ -57,6 +57,8 @@
             background: rgba(255,255,255,0.1); border: 1px solid #444; color: #eee;
             padding: 15px 30px; border-radius: 40px; cursor: pointer; font-weight: bold;
             text-transform: uppercase; font-size: 0.8rem; width: 250px; margin-top: 15px;
+            text-align: center;
+            display: block;
         }
         .btn-start { background-color: #fa2d48; border: none; font-size: 1.1rem; color: white; }
         .btn-random { background-color: transparent; border: 2px solid #fa2d48; color: #fa2d48; }
@@ -96,7 +98,7 @@
         </button>
 
         <button class="btn" id="reveal-btn" onclick="revealSolution()">Revelar solució</button>
-        <button class="btn btn-next" id="next-btn" onclick="window.location.href='https://davidof1990.github.io/Sonabe/'">Tornar al menú</button>
+        <button class="btn btn-next" id="next-btn" onclick="window.location.href='index.html'">Tornar al menú</button>
     </div>
 
     <div id="scanner-ui" style="display: none; flex-direction: column; align-items: center;">
@@ -157,9 +159,9 @@
                     const cols = fila.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
                     let link = cols[6] ? cols[6].replace(/"/g, "").trim() : "";
                     
-                    // CORRECCIÓ DE MAJÚSCULA: Si la URL del sheet encara diu 'sonabe', la forcem a 'Sonabe'
-                    if (link.includes("davidof1990.github.io/sonabe/")) {
-                        link = link.replace("/sonabe/", "/Sonabe/");
+                    // CORRECCIÓ AUTOMÀTICA DE MAJÚSCULA: Forcem la 'S' majúscula en qualsevol cas
+                    if (link.toLowerCase().includes("davidof1990.github.io/sonabe")) {
+                        link = link.replace(/sonabe/i, "Sonabe");
                     }
                     
                     if (link.includes("http")) urls.push(link);
@@ -208,7 +210,7 @@
             html5QrCode.start({ facingMode: "environment" }, { fps: 20, qrbox: 250 }, 
             (text) => { html5QrCode.stop().then(() => { 
                 // CORRECCIÓ DE MAJÚSCULA TAMBÉ PER A L'ESCÀNER
-                const fixedUrl = text.replace("/sonabe/", "/Sonabe/");
+                const fixedUrl = text.replace(/sonabe/i, "Sonabe");
                 window.location.href = fixedUrl; 
             }); });
         }
