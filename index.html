@@ -3,18 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sonabé! 🎶 - Versió 47</title>
+    <title>Sonabé! 🎶 - Versió 48</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
         :root { --primary: #fa2d48; --neon: #ff007f; --bg: #121212; }
         body { background-color: var(--bg); color: white; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; display: flex; flex-direction: column; align-items: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; text-align: center; }
         
         .neon-logo { font-weight: bold; font-size: 3rem; text-transform: uppercase; color: #fff; text-shadow: 0 0 10px #fff, 0 0 20px var(--neon); margin-bottom: 20px; }
-        
         .screen { display: none; flex-direction: column; align-items: center; width: 100%; max-width: 400px; gap: 15px; }
         .active { display: flex; }
 
-        /* Botons */
         .btn-list { display: flex; flex-direction: column; gap: 10px; width: 100%; align-items: center; }
         .btn { background: rgba(255,255,255,0.1); border: 1px solid #444; color: #eee; padding: 16px 25px; border-radius: 40px; cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 0.85rem; width: 280px; transition: 0.2s; }
         .btn-primary { background-color: var(--primary); border: none; color: white; box-shadow: 0 0 15px var(--primary); }
@@ -22,11 +20,9 @@
         .mode-selected { border-color: var(--neon) !important; color: white !important; background: rgba(255, 0, 127, 0.4) !important; box-shadow: 0 0 15px var(--neon); }
         .btn-secondary { background: rgba(255,255,255,0.05); border: 1px solid #666; color: #ccc; font-size: 0.75rem; width: 180px; margin-top: 10px; }
 
-        /* Setup Jugadors */
         .player-item { display: flex; justify-content: space-between; align-items: center; background: #222; padding: 12px 15px; border-radius: 12px; width: 280px; margin-bottom: 8px; border: 1px solid #444; }
         .del-btn { color: var(--primary); font-weight: bold; cursor: pointer; font-size: 1.4rem; padding: 0 10px; }
 
-        /* Joc */
         #turn-indicator { background: var(--primary); color: white; padding: 12px; border-radius: 10px; font-weight: 900; width: 100%; margin-bottom: 15px; text-transform: uppercase; font-size: 1.1rem; }
         .play-button { width: 90px; height: 90px; background-color: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; margin: 10px 0; border: none; }
         .play-icon { width: 0; height: 0; border-top: 18px solid transparent; border-bottom: 18px solid transparent; border-left: 28px solid white; margin-left: 8px; }
@@ -36,7 +32,6 @@
         .album-art { width: 160px; height: 160px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.5); }
         .year-badge { background: white; color: black; font-weight: 900; font-size: 2.5rem; padding: 5px 30px; border-radius: 10px; }
 
-        /* Tauler Inferior */
         .board-container { width: 100%; max-width: 400px; margin-top: 30px; border-top: 1px solid #444; padding-top: 20px; display: none; }
         .player-row { background: #1e1e1e; padding: 10px; border-radius: 12px; margin-bottom: 10px; border-left: 5px solid var(--primary); text-align: left; }
         .active-row { border: 2px solid white !important; box-shadow: 0 0 10px var(--primary); background: #222; }
@@ -124,20 +119,20 @@
         const params = new URLSearchParams(window.location.search);
         const appleId = params.get('id');
 
-        // MEMÒRIA v47
+        // MEMÒRIA v48
         let gameState = { players: [], currentTurn: 0, mode: 'timeline', playedIds: [], winCondition: 5 };
 
         function load() {
-            const saved = localStorage.getItem('sonabe_v47');
+            const saved = localStorage.getItem('sonabe_v48');
             if (saved) gameState = JSON.parse(saved);
         }
-        function save() { localStorage.setItem('sonabe_v47', JSON.stringify(gameState)); }
+        function save() { localStorage.setItem('sonabe_v48', JSON.stringify(gameState)); }
 
         load();
 
         window.onload = () => {
             if (appleId) {
-                renderGameUI();
+                renderGameUI(); // Determina quina UI mostrar segons jugadors
                 loadSong(appleId);
             } else if (gameState.players.length > 0) {
                 renderBoards();
@@ -148,9 +143,10 @@
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById('game-screen').classList.add('active');
             
-            const actual = gameState.players[gameState.currentTurn];
-            
-            if (gameState.players.length > 0 && actual) {
+            // LA CLAU: Si hi ha jugadors, FORÇAR el mode Online
+            if (gameState.players.length > 0) {
+                const actual = gameState.players[gameState.currentTurn];
+                
                 document.getElementById('ui-online-mode').style.display = 'block';
                 document.getElementById('ui-cards-mode').style.display = 'none';
                 document.getElementById('turn-indicator').innerText = `TORN DE: ${actual.name.toUpperCase()}`;
@@ -166,14 +162,15 @@
                 }
                 renderBoards();
             } else {
+                // NOMÉS SI NO HI HA NINGÚ: Mode Lliure
                 document.getElementById('ui-online-mode').style.display = 'none';
                 document.getElementById('ui-cards-mode').style.display = 'block';
-                document.getElementById('turn-indicator').innerText = "MODE LLIURE";
+                document.getElementById('turn-indicator').innerText = "MODE ESCANEIG";
                 document.getElementById('btn-next').innerText = "Escanejar Següent";
             }
         }
 
-        // MENÚS
+        // FUNCIONS SETUP
         function openSetup() {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById('setup-screen').classList.add('active');
@@ -198,8 +195,6 @@
             document.getElementById('config-area').style.display = (gameState.players.length > 0) ? 'block' : 'none';
             setMode(gameState.mode);
         }
-
-        function updateWinCondition() { gameState.winCondition = parseInt(document.getElementById('win-input').value) || 5; save(); renderBoards(); }
 
         function setMode(m) {
             gameState.mode = m;
@@ -226,7 +221,7 @@
             sorted.forEach((y, i) => { container.innerHTML += `<div class="year-card">${y}</div>`; container.innerHTML += `<button class="slot-btn" onclick="checkTimelineGuess(${i})">${(i === sorted.length-1) ? "NOU" : "ENTRE"}</button>`; });
         }
 
-        // LOGICA JOC
+        // JOC I SOLUCIONS
         async function loadSong(id) {
             try {
                 const r = await fetch(`https://itunes.apple.com/lookup?id=${id}&country=es`);
@@ -270,12 +265,12 @@
             } else { startScanner(); }
         }
 
-        // UTILITATS
+        // REDIRECCIONS
         function goToMenu() { window.location.href = window.location.pathname; }
         function startScanner() { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById('scanner-screen').classList.add('active'); const q = new Html5Qrcode("reader"); q.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (t) => { q.stop().then(() => { window.location.href = t; }); }); }
-        function resetGame() { if(confirm("Vols reiniciar-ho tot?")) { localStorage.removeItem('sonabe_v47'); goToMenu(); } }
+        function resetGame() { if(confirm("Vols esborrar tota la partida?")) { localStorage.removeItem('sonabe_v48'); goToMenu(); } }
         async function jugarAleatori() {
-            save(); 
+            save(); // Forcem el guardat de la llista David/Carla abans de marxar
             const sheet = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTSKbhu-nwl5Mrq1-_WiGPQyiflqbb3a5C9BRTTDWgwMNqTur9_8GBODKlJC9-OHol7EhIzap9Yv_lF/pub?output=csv&t=" + Date.now();
             try {
                 const r = await fetch(sheet); const t = await r.text();
