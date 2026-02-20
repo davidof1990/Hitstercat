@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sonabé! 🎶 - Versió 28</title>
+    <title>Sonabé! 🎶 - Versió 29</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
         :root { --primary: #fa2d48; --neon: #ff007f; --bg: #121212; }
@@ -16,7 +16,7 @@
         }
 
         .neon-logo {
-            font-weight: bold; font-size: 3.2rem; text-transform: uppercase; color: #fff;
+            font-weight: bold; font-size: 3rem; text-transform: uppercase; color: #fff;
             text-shadow: 0 0 10px #fff, 0 0 20px var(--neon); margin-bottom: 20px;
         }
 
@@ -24,57 +24,57 @@
         .active { display: flex; }
 
         /* Botons */
-        .btn-list { display: flex; flex-direction: column; gap: 12px; width: 100%; align-items: center; }
+        .btn-list { display: flex; flex-direction: column; gap: 10px; width: 100%; align-items: center; }
         .btn {
             background: rgba(255,255,255,0.1); border: 1px solid #444; color: #eee;
             padding: 16px 25px; border-radius: 40px; cursor: pointer; font-weight: bold;
-            text-transform: uppercase; font-size: 0.9rem; width: 280px; transition: 0.2s;
+            text-transform: uppercase; font-size: 0.85rem; width: 280px; transition: 0.2s;
         }
         .btn-primary { background-color: var(--primary); border: none; color: white; box-shadow: 0 0 15px var(--primary); }
         .btn-outline { background-color: transparent; border: 2px solid var(--primary); color: var(--primary); }
         
         /* Ombrejat Mode Seleccionat */
-        .btn-selected { 
+        .mode-selected { 
             border-color: var(--neon) !important; 
             color: white !important; 
             background: rgba(255, 0, 127, 0.3) !important; 
             box-shadow: 0 0 15px var(--neon); 
         }
 
-        .btn-secondary { background: rgba(255,255,255,0.05); border: 1px solid #666; color: #ccc; font-size: 0.7rem; width: 150px; }
+        .btn-secondary { background: rgba(255,255,255,0.05); border: 1px solid #666; color: #ccc; font-size: 0.7rem; width: 180px; margin-top: 10px; }
 
-        /* Llista Jugadors */
+        /* Llista Jugadors Setup */
         .player-item { 
             display: flex; justify-content: space-between; align-items: center; 
-            background: #222; padding: 10px 15px; border-radius: 12px; 
+            background: #222; padding: 12px 15px; border-radius: 12px; 
             width: 280px; margin-bottom: 8px; border: 1px solid #444;
         }
-        .del-btn { color: var(--primary); font-weight: bold; cursor: pointer; font-size: 1.2rem; margin-left: 10px; padding: 5px; }
+        .del-btn { color: var(--primary); font-weight: bold; cursor: pointer; font-size: 1.3rem; padding: 0 10px; }
 
         /* Indicador de Torn */
         #turn-indicator { 
-            background: var(--primary); color: white; padding: 15px; border-radius: 15px; 
-            font-weight: 900; width: 100%; margin-bottom: 20px; font-size: 1.2rem;
-            text-transform: uppercase; box-shadow: 0 0 20px rgba(250, 45, 72, 0.5);
+            background: var(--primary); color: white; padding: 12px; border-radius: 12px; 
+            font-weight: 900; width: 100%; margin-bottom: 15px; text-transform: uppercase; font-size: 1.1rem;
         }
 
+        /* Reproductor */
         .play-button { width: 90px; height: 90px; background-color: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; margin: 10px 0; border: none; }
         .play-icon { width: 0; height: 0; border-top: 18px solid transparent; border-bottom: 18px solid transparent; border-left: 28px solid white; margin-left: 8px; }
         .stop-icon { width: 30px; height: 30px; background-color: white; border-radius: 4px; display: none; }
         
-        #solution-card { display: none; flex-direction: column; align-items: center; gap: 15px; width: 100%; }
-        .album-art { width: 170px; height: 170px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
-        .year-badge { background: white; color: black; font-weight: 900; font-size: 2.2rem; padding: 8px 30px; border-radius: 15px; }
+        #solution-card { display: none; flex-direction: column; align-items: center; gap: 10px; width: 100%; }
+        .album-art { width: 160px; height: 160px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.5); }
+        .year-badge { background: white; color: black; font-weight: 900; font-size: 2rem; padding: 5px 25px; border-radius: 10px; }
 
-        /* Tauler Inferior */
-        .board-container { width: 100%; max-width: 400px; margin-top: 30px; border-top: 1px solid #444; padding-top: 20px; display: none; }
-        .player-row { background: #1e1e1e; padding: 12px; border-radius: 15px; margin-bottom: 12px; border-left: 5px solid var(--primary); text-align: left; }
-        .active-row { border: 2px solid white; box-shadow: 0 0 15px var(--primary); background: #222; }
-        .timeline { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
-        .year-card { background: white; color: black; font-size: 0.8rem; font-weight: bold; padding: 4px 10px; border-radius: 5px; }
-        .slot-btn { background: rgba(255,255,255,0.1); border: 1px dashed #666; color: #aaa; padding: 4px 10px; border-radius: 5px; font-size: 0.65rem; cursor: pointer; }
+        /* Tauler Inferior (Global) */
+        .board-container { width: 100%; max-width: 400px; margin-top: 25px; border-top: 1px solid #333; padding-top: 15px; display: none; }
+        .player-row { background: #1e1e1e; padding: 10px; border-radius: 12px; margin-bottom: 10px; border-left: 5px solid var(--primary); text-align: left; }
+        .active-row { border: 2px solid white; box-shadow: 0 0 10px var(--primary); background: #222; }
+        .timeline { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 5px; align-items: center; }
+        .year-card { background: white; color: black; font-size: 0.75rem; font-weight: bold; padding: 2px 8px; border-radius: 4px; }
+        .slot-btn { background: rgba(255,255,255,0.1); border: 1px dashed #555; color: #999; padding: 3px 8px; border-radius: 4px; font-size: 0.6rem; cursor: pointer; }
 
-        input[type="number"], input[type="text"] { padding: 12px; border-radius: 12px; border: 1px solid var(--neon); background: #222; color: white; text-align: center; width: 220px; outline: none; }
+        input[type="number"], input[type="text"] { padding: 12px; border-radius: 10px; border: 1px solid var(--neon); background: #222; color: white; text-align: center; width: 220px; outline: none; }
     </style>
 </head>
 <body>
@@ -90,49 +90,49 @@
 
     <div id="setup-screen" class="screen">
         <div class="neon-logo" style="font-size: 2rem;">Qui juga?</div>
-        <div style="display:flex; gap:10px; margin-bottom:10px;">
+        <div style="display:flex; gap:10px;">
             <input type="text" id="player-input" placeholder="Nom...">
             <button class="btn btn-primary" onclick="addPlayer()" style="width:80px; padding:0;">AFEGIR</button>
         </div>
-        <div id="player-list-setup"></div>
+        <div id="player-list-setup" style="width:100%; margin-top:10px;"></div>
 
         <div id="config-area" style="display:none; width:100%; margin-top:10px;">
-            <p style="font-size:0.8rem; color:#888;">CARTES PER GUANYAR:</p>
-            <input type="number" id="win-input" value="5" min="2" max="20" style="width:80px; margin-bottom:20px;">
-            <p style="font-size:0.8rem; color:#888;">MODE DE JOC:</p>
+            <p style="font-size:0.7rem; font-weight:bold; color:#888;">CARTES PER GUANYAR:</p>
+            <input type="number" id="win-input" value="5" min="2" max="20" onchange="updateWinCondition()" style="width:80px; margin-bottom:15px;">
+            <p style="font-size:0.7rem; font-weight:bold; color:#888;">MODE DE JOC:</p>
             <div class="btn-list">
-                <button id="btn-mode-exact" class="btn btn-outline" onclick="setMode('exact')">ANY EXACTE</button>
-                <button id="btn-mode-timeline" class="btn btn-outline" onclick="setMode('timeline')">LINIA DEL TEMPS</button>
+                <button id="mode-exact" class="btn btn-outline" style="width:100%;" onclick="setMode('exact')">ANY EXACTE</button>
+                <button id="mode-timeline" class="btn btn-outline" style="width:100%;" onclick="setMode('timeline')">LINIA DEL TEMPS</button>
             </div>
-            <button class="btn btn-primary" style="width:100%; margin-top:25px; border:2px solid white;" onclick="startGame()">COMENÇAR PARTIDA</button>
+            <button class="btn btn-primary" style="width:100%; margin-top:20px; border:2px solid white;" onclick="jugarAleatori()">COMENÇAR</button>
         </div>
         <button class="btn btn-secondary" onclick="location.reload()">Tornar</button>
     </div>
 
     <div id="game-screen" class="screen">
-        <div id="turn-indicator">CARREGANT...</div>
-        <button class="play-button" onclick="toggleAudio()">
+        <div id="turn-indicator">TORN DE: ---</div>
+        <button class="play-button" onclick="handlePlayClick()">
             <div class="play-icon" id="icon-play"></div>
             <div class="stop-icon" id="icon-stop"></div>
         </button>
         <div id="ui-exact" class="btn-list" style="display:none;">
             <p>Quin any es va publicar?</p>
-            <input type="number" id="year-guess" placeholder="Ex: 1995" pattern="\d*">
-            <button class="btn btn-primary" onclick="checkExact()">Endevinar</button>
+            <input type="number" id="year-guess" placeholder="Any" pattern="\d*">
+            <button class="btn btn-primary" onclick="checkGuessExact()">Endevinar</button>
         </div>
         <div id="ui-timeline" class="btn-list" style="display:none;">
-            <p>On va la cançó?</p>
+            <p>En quina posició va la cançó?</p>
             <div id="timeline-slots" class="timeline" style="justify-content: center;"></div>
         </div>
         <div id="solution-card">
             <div id="guess-result" style="font-weight: bold; font-size: 1.4rem;"></div>
             <div id="song-year" class="year-badge">----</div>
             <img id="album-img" class="album-art" src="">
-            <div id="song-title" style="font-weight: bold; font-size: 1rem; padding:0 10px;"></div>
+            <div id="song-title" style="font-weight: bold; font-size: 1rem;"></div>
             <div id="song-artist" style="color: var(--primary);"></div>
             <button class="btn btn-primary" onclick="nextTurn()">Següent Cançó</button>
         </div>
-        <button class="btn btn-secondary" onclick="location.reload()" style="margin-top:15px;">Menú Principal</button>
+        <button class="btn btn-secondary" onclick="goToMenu()">Menú Principal</button>
     </div>
 
     <div id="all-boards" class="board-container"></div>
@@ -145,39 +145,37 @@
         const appleId = params.get('id');
         const isRandom = params.get('mode') === 'rand';
 
-        // MEMÒRIA v28
-        let gameState = { players: [], currentTurn: 0, mode: 'exact', winCondition: 5, playedIds: [] };
+        // MEMÒRIA v29
+        let gameState = { players: [], currentTurn: 0, mode: 'exact', playedIds: [], winCondition: 5 };
 
         function load() {
-            const saved = localStorage.getItem('sonabe_v28');
+            const saved = localStorage.getItem('sonabe_v29');
             if (saved) gameState = JSON.parse(saved);
         }
-        function save() { localStorage.setItem('sonabe_v28', JSON.stringify(gameState)); }
+        function save() { localStorage.setItem('sonabe_v29', JSON.stringify(gameState)); }
 
         window.onload = () => {
-            load(); // PAS 1: Llegir David i Mireia immediatament
-            
+            load();
             if (appleId) {
                 if (!gameState.playedIds.includes(appleId)) gameState.playedIds.push(appleId);
                 save();
-                renderBoards(); // PAS 2: Dibuixar el tauler sota el joc
-                showGameUI();   // PAS 3: Activar pantalla de joc
+                renderBoards();
+                showGame();
                 loadSong(appleId);
             } else if (gameState.players.length > 0) {
                 renderBoards();
             }
         };
 
-        function showGameUI() {
+        function showGame() {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById('game-screen').classList.add('active');
-            
             const actual = gameState.players[gameState.currentTurn];
             if (actual) {
                 document.getElementById('turn-indicator').innerText = `TORN DE: ${actual.name.toUpperCase()}`;
                 document.getElementById('ui-exact').style.display = (gameState.mode === 'exact') ? 'flex' : 'none';
                 document.getElementById('ui-timeline').style.display = (gameState.mode === 'timeline') ? 'flex' : 'none';
-                if (gameState.mode === 'timeline') renderSlots(actual);
+                if (gameState.mode === 'timeline') renderTimelineSlots(actual);
             }
         }
 
@@ -188,18 +186,19 @@
         }
 
         function addPlayer() {
-            const name = document.getElementById('player-input').value.trim();
+            const input = document.getElementById('player-input');
+            const name = input.value.trim();
             if (name) {
                 const startYear = Math.floor(Math.random() * (2025 - 1930 + 1)) + 1930;
                 gameState.players.push({ name: name, cards: [startYear] });
-                document.getElementById('player-input').value = "";
-                save(); updateSetupList();
+                input.value = "";
+                save(); updateSetupList(); renderBoards();
             }
         }
 
         function deletePlayer(i) {
             gameState.players.splice(i, 1);
-            save(); updateSetupList();
+            save(); updateSetupList(); renderBoards();
         }
 
         function updateSetupList() {
@@ -211,20 +210,24 @@
                 </div>
             `).join('');
             document.getElementById('config-area').style.display = (gameState.players.length > 0) ? 'block' : 'none';
-            setMode(gameState.mode); 
+            setMode(gameState.mode);
+        }
+
+        function updateWinCondition() {
+            gameState.winCondition = parseInt(document.getElementById('win-input').value) || 5;
+            save(); renderBoards();
         }
 
         function setMode(m) {
             gameState.mode = m;
-            document.getElementById('btn-mode-exact').classList.toggle('btn-selected', m === 'exact');
-            document.getElementById('btn-mode-timeline').classList.toggle('btn-selected', m === 'timeline');
+            document.getElementById('mode-exact').className = (m === 'exact') ? 'btn mode-selected' : 'btn btn-outline';
+            document.getElementById('mode-timeline').className = (m === 'timeline') ? 'btn mode-selected' : 'btn btn-outline';
             save();
         }
 
         function renderBoards() {
             const container = document.getElementById('all-boards');
-            if (gameState.players.length === 0) { container.style.display = 'none'; return; }
-            
+            if (gameState.players.length === 0) return;
             container.style.display = 'block';
             container.innerHTML = "<h3>Taulers de joc</h3>";
             gameState.players.forEach((p, i) => {
@@ -238,21 +241,16 @@
             });
         }
 
-        function renderSlots(player) {
+        function renderTimelineSlots(player) {
             const container = document.getElementById('timeline-slots');
             container.innerHTML = "";
             const sorted = [...player.cards].sort((a,b) => a-b);
-            container.innerHTML += `<button class="slot-btn" onclick="checkTimeline(-1)">ANTIC</button>`;
-            sorted.forEach((y, i) => {
-                container.innerHTML += `<div class="year-card">${y}</div>`;
-                container.innerHTML += `<button class="slot-btn" onclick="checkTimeline(i)">${(i === sorted.length - 1) ? "NOU" : "ENTRE"}</button>`;
+            container.innerHTML += `<button class="slot-btn" onclick="checkTimelineGuess(-1)">ANTIC</button>`;
+            sorted.forEach((year, index) => {
+                container.innerHTML += `<div class="year-card">${year}</div>`;
+                const label = (index === sorted.length - 1) ? "NOU" : "ENTRE";
+                container.innerHTML += `<button class="slot-btn" onclick="checkTimelineGuess(${index})">${label}</button>`;
             });
-        }
-
-        async function startGame() {
-            gameState.winCondition = parseInt(document.getElementById('win-input').value) || 5;
-            save();
-            await jugarAleatori();
         }
 
         async function loadSong(id) {
@@ -269,7 +267,7 @@
             } catch (e) {}
         }
 
-        function toggleAudio() {
+        function handlePlayClick() {
             if (audio.paused) { 
                 document.getElementById('icon-play').style.display='none'; document.getElementById('icon-stop').style.display='block';
                 audio.volume = 0; audio.play();
@@ -280,13 +278,8 @@
             }
         }
 
-        function checkExact() {
-            const g = parseInt(document.getElementById('year-guess').value);
-            const r = parseInt(document.getElementById('song-year').innerText);
-            showResult(g === r);
-        }
-
-        function checkTimeline(idx) {
+        function checkGuessExact() { showResult(parseInt(document.getElementById('year-guess').value) === parseInt(document.getElementById('song-year').innerText)); }
+        function checkTimelineGuess(idx) {
             const r = parseInt(document.getElementById('song-year').innerText);
             const s = [...gameState.players[gameState.currentTurn].cards].sort((a,b) => a-b);
             let ok = (idx === -1) ? (r <= s[0]) : (idx === s.length - 1) ? (r >= s[s.length-1]) : (r >= s[idx] && r <= s[idx+1]);
@@ -301,20 +294,11 @@
                 p.cards.push(year); save(); renderBoards();
                 document.getElementById('guess-result').innerText = "✅ ENCERTAT!";
                 document.getElementById('guess-result').style.color = "#28a745";
-            } else {
-                document.getElementById('guess-result').innerText = "❌ INCORRECTE";
-                document.getElementById('guess-result').style.color = "#fa2d48";
-            }
-            document.getElementById('ui-exact').style.display = 'none';
-            document.getElementById('ui-timeline').style.display = 'none';
-            document.getElementById('solution-card').style.display = 'flex';
+            } else { document.getElementById('guess-result').innerText = "❌ INCORRECTE"; document.getElementById('guess-result').style.color = "#fa2d48"; }
+            document.getElementById('ui-exact').style.display = 'none'; document.getElementById('ui-timeline').style.display = 'none'; document.getElementById('solution-card').style.display = 'flex';
         }
 
-        function nextTurn() {
-            gameState.currentTurn = (gameState.currentTurn + 1) % gameState.players.length;
-            save();
-            if (isRandom) jugarAleatori(); else location.reload();
-        }
+        function nextTurn() { gameState.currentTurn = (gameState.currentTurn + 1) % gameState.players.length; save(); jugarAleatori(); }
 
         async function jugarAleatori() {
             const sheet = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTSKbhu-nwl5Mrq1-_WiGPQyiflqbb3a5C9BRTTDWgwMNqTur9_8GBODKlJC9-OHol7EhIzap9Yv_lF/pub?output=csv&t=" + Date.now();
@@ -324,19 +308,23 @@
                 const avail = lines.map(l => {
                     const c = l.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
                     const url = c[6] ? c[6].replace(/"/g, "").trim() : "";
-                    const id = (url.match(/id=(\d+)/) || [])[1];
-                    return { url, id };
+                    const idMatch = url.match(/id=(\d+)/);
+                    return { url, id: idMatch ? idMatch[1] : null };
                 }).filter(s => s.url.includes("http") && !gameState.playedIds.includes(s.id));
-                window.location.href = avail[Math.floor(Math.random()*avail.length)].url + "&mode=rand";
-            } catch (e) {}
+                
+                if (avail.length > 0) {
+                    window.location.href = avail[Math.floor(Math.random()*avail.length)].url + "&mode=rand";
+                } else { alert("Fi de les cançons!"); }
+            } catch (e) { alert("Error al carregar el llistat."); }
         }
 
-        function resetGame() { if(confirm("Reiniciar tot?")) { localStorage.removeItem('sonabe_v28'); location.reload(); } }
+        function goToMenu() { window.location.href = window.location.pathname; }
         function startScanner() {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             const q = new Html5Qrcode("reader");
             q.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (t) => { q.stop().then(() => { window.location.href = t; }); });
         }
+        function resetGame() { if(confirm("Esborrar tot?")) { localStorage.removeItem('sonabe_v29'); location.reload(); } }
     </script>
 </body>
 </html>
