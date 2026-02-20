@@ -20,7 +20,7 @@
         .neon-logo {
             font-weight: bold; font-size: 3.2rem; text-transform: uppercase; color: #fff;
             text-shadow: 0 0 10px #fff, 0 0 20px var(--neon), 0 0 40px var(--neon);
-            margin-bottom: 20px;
+            margin-bottom: 20px; width: 100%;
         }
 
         .screen { display: none; flex-direction: column; align-items: center; width: 100%; max-width: 400px; gap: 20px; }
@@ -32,6 +32,7 @@
             background: rgba(255,255,255,0.1); border: 1px solid #444; color: #eee;
             padding: 18px 30px; border-radius: 40px; cursor: pointer; font-weight: bold;
             text-transform: uppercase; font-size: 0.9rem; width: 280px; transition: all 0.2s;
+            text-decoration: none;
         }
         .btn-primary { background-color: var(--primary); border: none; box-shadow: 0 0 20px rgba(250, 45, 72, 0.4); color: white; }
         .btn-outline { background-color: transparent; border: 2px solid var(--primary); color: var(--primary); }
@@ -40,10 +41,10 @@
         /* Inputs */
         input[type="number"], input[type="text"] { 
             padding: 15px; border-radius: 10px; border: 1px solid var(--neon); 
-            background: #222; color: white; text-align: center; font-size: 1.2rem; width: 200px; outline: none;
+            background: #222; color: white; text-align: center; font-size: 1.2rem; width: 220px; outline: none;
         }
 
-        /* Reproductor */
+        /* Joc */
         .play-button {
             width: 100px; height: 100px; background-color: var(--primary); border-radius: 50%;
             display: flex; align-items: center; justify-content: center; cursor: pointer;
@@ -52,12 +53,12 @@
         .play-icon { width: 0; height: 0; border-top: 20px solid transparent; border-bottom: 20px solid transparent; border-left: 30px solid white; margin-left: 8px; }
         .stop-icon { width: 35px; height: 35px; background-color: white; border-radius: 6px; display: none; }
 
-        /* Resultats */
-        #solution-card { display: none; flex-direction: column; align-items: center; gap: 10px; animation: fadeIn 0.5s ease; }
+        /* Solució */
+        #solution-card { display: none; flex-direction: column; align-items: center; gap: 10px; animation: fadeIn 0.5s ease; width: 100%; }
         .album-art { width: 180px; height: 180px; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
         .year-badge { background: white; color: black; font-weight: 900; font-size: 2.2rem; padding: 5px 30px; border-radius: 15px; }
 
-        /* Tauler de Cartes */
+        /* Tauler de jugadors */
         .board-container { width: 100%; max-width: 380px; margin-top: 20px; border-top: 1px solid #333; padding-top: 20px; }
         .player-row { background: #1e1e1e; padding: 12px; border-radius: 15px; margin-bottom: 10px; border-left: 5px solid var(--primary); text-align: left; }
         .active-turn { border: 2px solid white; box-shadow: 0 0 15px var(--primary); }
@@ -86,9 +87,9 @@
         <input type="text" id="player-input" placeholder="Nom del jugador...">
         <div class="btn-list">
             <button class="btn btn-primary" onclick="addPlayer()">Afegir Jugador</button>
-            <div id="player-list-setup" style="color: #888; font-size: 0.9rem;"></div>
-            <button id="start-game-btn" class="btn btn-outline" style="display:none;" onclick="jugarAleatori()">Començar Joc</button>
-            <button class="btn btn-secondary" onclick="location.reload()">Tornar</button>
+            <div id="player-list-setup" style="color: #888; font-size: 0.9rem; min-height: 20px;"></div>
+            <button id="start-game-btn" class="btn btn-outline" style="display:none;" onclick="jugarAleatori()">Començar Partida</button>
+            <button class="btn btn-secondary" onclick="goToMenu()">Tornar al Menú</button>
         </div>
     </div>
 
@@ -105,7 +106,7 @@
             <p style="margin-bottom: 10px;">Quin any es va publicar?</p>
             <input type="number" id="year-guess" placeholder="Ex: 1995" pattern="\d*">
             <button class="btn btn-primary" style="margin-top: 15px;" onclick="checkGuess()">Endevinar</button>
-            <button class="btn btn-secondary" style="margin-top: 10px; width: 150px;" onclick="location.reload()">Sortir al Menú</button>
+            <button class="btn btn-secondary" style="margin-top: 10px;" onclick="goToMenu()">Sortir al Menú</button>
         </div>
 
         <div id="solution-card">
@@ -117,15 +118,15 @@
             
             <div class="btn-list" style="margin-top: 10px;">
                 <button class="btn btn-primary" onclick="nextTurnFlow()">Següent Cançó</button>
-                <button class="btn btn-secondary" onclick="location.reload()">Tornar al Menú</button>
+                <button class="btn btn-secondary" onclick="goToMenu()">Tornar al Menú</button>
             </div>
         </div>
     </div>
 
     <div id="scanner-screen" class="screen">
-        <div class="neon-logo" style="font-size: 1.5rem;">Escaneja</div>
+        <div class="neon-logo" style="font-size: 1.5rem;">Escaneja el QR</div>
         <div id="reader"></div>
-        <button class="btn btn-secondary" onclick="location.reload()">Tornar</button>
+        <button class="btn btn-secondary" onclick="goToMenu()">Tornar</button>
     </div>
 
     <div id="all-boards" class="board-container" style="display:none;"></div>
@@ -138,7 +139,8 @@
         const appleId = params.get('id');
         const isRandom = params.get('mode') === 'rand';
 
-        let gameState = JSON.parse(localStorage.getItem('sonabe_v7')) || { players: [], currentTurn: 0 };
+        // Estat persistent
+        let gameState = JSON.parse(localStorage.getItem('sonabe_v8')) || { players: [], currentTurn: 0 };
         let songData = null;
 
         window.onload = () => {
@@ -151,10 +153,14 @@
         function switchScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
+            
+            // Mostrar tauler si hi ha jugadors i estem a la pantalla de joc
             if (id === 'game-screen' && gameState.players.length > 0) {
                 document.getElementById('all-boards').style.display = 'block';
                 renderBoards();
                 document.getElementById('turn-msg').innerText = `Torn de: ${gameState.players[gameState.currentTurn].name}`;
+            } else {
+                document.getElementById('all-boards').style.display = 'none';
             }
         }
 
@@ -206,6 +212,10 @@
             } catch (e) { console.error(e); }
         }
 
+        function goToMenu() {
+            window.location.href = window.location.pathname; // Neteja ID de la URL i torna al principi
+        }
+
         function togglePlay() {
             if (audio.paused) { audio.play(); document.getElementById('icon-play').style.display='none'; document.getElementById('icon-stop').style.display='block'; }
             else { audio.pause(); document.getElementById('icon-play').style.display='block'; document.getElementById('icon-stop').style.display='none'; }
@@ -217,11 +227,10 @@
             
             if (!guess) { alert("Posa un any!"); return; }
 
-            // Si encerta, afegim la carta immediatament al tauler abans de mostrar el resultat
             if (parseInt(guess) === realYear && gameState.players.length > 0) {
                 gameState.players[gameState.currentTurn].cards.push(realYear);
                 save();
-                renderBoards(); // Actualitza el tauler visualment
+                renderBoards();
                 document.getElementById('guess-result').innerText = "✅ ENCERTAT!";
                 document.getElementById('guess-result').style.color = "#28a745";
             } else {
@@ -238,7 +247,7 @@
                 gameState.currentTurn = (gameState.currentTurn + 1) % gameState.players.length;
                 save();
             }
-            if (isRandom) jugarAleatori(); else window.location.href = window.location.pathname;
+            if (isRandom) jugarAleatori(); else goToMenu();
         }
 
         async function jugarAleatori() {
@@ -263,8 +272,8 @@
             });
         }
 
-        function save() { localStorage.setItem('sonabe_v7', JSON.stringify(gameState)); }
-        function resetGame() { if(confirm("Vols esborrar la partida actual?")) { localStorage.removeItem('sonabe_v7'); location.reload(); } }
+        function save() { localStorage.setItem('sonabe_v8', JSON.stringify(gameState)); }
+        function resetGame() { if(confirm("Esborrar tot?")) { localStorage.removeItem('sonabe_v8'); goToMenu(); } }
     </script>
 </body>
 </html>
