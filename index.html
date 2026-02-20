@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sonabé! 🎶 - Hitster Edition</title>
+    <title>Sonabé! 🎶 - Edició Personalitzada</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
         :root { --primary: #fa2d48; --neon: #ff007f; --bg: #121212; }
@@ -21,7 +21,7 @@
             margin-bottom: 20px;
         }
 
-        .screen { display: none; flex-direction: column; align-items: center; width: 100%; max-width: 400px; gap: 20px; }
+        .screen { display: none; flex-direction: column; align-items: center; width: 100%; max-width: 400px; gap: 15px; }
         .active { display: flex; }
 
         /* Botons */
@@ -36,36 +36,36 @@
         .btn-outline { background-color: transparent; border: 2px solid var(--primary); color: var(--primary); }
         .btn-secondary { background: rgba(255,255,255,0.05); border: 1px solid #666; color: #ccc; font-size: 0.7rem; width: 180px; }
 
-        /* Indicador de Torn */
-        #turn-indicator { 
-            background: var(--primary); color: white; padding: 12px; border-radius: 12px; 
-            font-weight: 900; width: 100%; margin-bottom: 10px; font-size: 1.1rem;
-            box-shadow: 0 0 20px var(--primary); text-transform: uppercase;
-        }
+        /* Llista Jugadors amb botó d'eliminar */
+        .player-tag { display: flex; justify-content: space-between; align-items: center; background: #222; padding: 10px 15px; border-radius: 10px; width: 260px; margin-bottom: 8px; border: 1px solid #333; }
+        .del-btn { color: var(--primary); font-weight: bold; cursor: pointer; padding: 5px 10px; font-size: 1.2rem; }
 
-        .play-button {
-            width: 100px; height: 100px; background-color: var(--primary); border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; cursor: pointer;
-            box-shadow: 0 0 30px rgba(250, 45, 72, 0.5); border: none; margin: 10px 0;
-        }
-        .play-icon { width: 0; height: 0; border-top: 20px solid transparent; border-bottom: 20px solid transparent; border-left: 32px solid white; margin-left: 8px; }
-        .stop-icon { width: 35px; height: 35px; background-color: white; border-radius: 5px; display: none; }
+        /* Configuració Partida */
+        .config-box { background: #1a1a1a; padding: 20px; border-radius: 20px; border: 1px solid var(--neon); width: 100%; margin: 10px 0; }
+        .label-text { font-size: 0.8rem; font-weight: bold; color: #aaa; margin-bottom: 8px; display: block; }
+
+        /* Pantalla de Joc */
+        #turn-indicator { background: var(--primary); color: white; padding: 12px; border-radius: 12px; font-weight: 900; width: 100%; margin-bottom: 15px; font-size: 1.1rem; box-shadow: 0 0 20px var(--primary); text-transform: uppercase; }
+        .play-button { width: 90px; height: 90px; background-color: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 0 30px rgba(250, 45, 72, 0.5); border: none; }
+        .play-icon { width: 0; height: 0; border-top: 18px solid transparent; border-bottom: 18px solid transparent; border-left: 28px solid white; margin-left: 8px; }
+        .stop-icon { width: 30px; height: 30px; background-color: white; border-radius: 4px; display: none; }
 
         #solution-card { display: none; flex-direction: column; align-items: center; gap: 10px; width: 100%; }
-        .album-art { width: 180px; height: 180px; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
+        .album-art { width: 170px; height: 170px; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
         .year-badge { background: white; color: black; font-weight: 900; font-size: 2.2rem; padding: 5px 30px; border-radius: 15px; }
 
-        /* Tauler */
+        /* Tauler Inferior */
         .board-container { width: 100%; max-width: 380px; margin-top: 25px; border-top: 1px solid #333; padding-top: 20px; }
-        .player-row { background: #1e1e1e; padding: 12px; border-radius: 15px; margin-bottom: 10px; border-left: 5px solid var(--primary); text-align: left; transition: 0.3s; }
+        .player-row { background: #1e1e1e; padding: 12px; border-radius: 15px; margin-bottom: 10px; border-left: 5px solid var(--primary); text-align: left; }
         .active-player-row { border: 2px solid white; box-shadow: 0 0 15px var(--primary); background: #252525; }
         .timeline { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; align-items: center; }
         .year-card { background: white; color: black; font-size: 0.8rem; font-weight: bold; padding: 3px 10px; border-radius: 5px; }
         .slot-btn { background: rgba(255,255,255,0.1); border: 1px dashed #666; color: #aaa; padding: 4px 10px; border-radius: 5px; font-size: 0.65rem; cursor: pointer; }
 
-        #winner-screen { display: none; flex-direction: column; align-items: center; justify-content: center; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.95); z-index: 100; padding: 20px; box-sizing: border-box; }
+        /* Pantalla Victòria */
+        #winner-screen { display: none; flex-direction: column; align-items: center; justify-content: center; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.95); z-index: 100; padding: 20px; text-align: center; }
         
-        input[type="number"], input[type="text"] { padding: 15px; border-radius: 12px; border: 1px solid var(--neon); background: #222; color: white; text-align: center; font-size: 1.1rem; width: 220px; outline: none; }
+        input[type="number"], input[type="text"] { padding: 12px; border-radius: 12px; border: 1px solid var(--neon); background: #222; color: white; text-align: center; font-size: 1.1rem; width: 220px; outline: none; }
         #reader { width: 300px; border: 2px solid var(--neon); border-radius: 15px; overflow: hidden; }
     </style>
 </head>
@@ -76,31 +76,36 @@
         <div class="btn-list">
             <button class="btn btn-primary" onclick="startScanner()">Tinc les meves cartes 📷</button>
             <button class="btn btn-outline" onclick="showSetup()">Jugar online 🎲</button>
-            <button class="btn btn-secondary" onclick="resetGame()">Reiniciar Partida</button>
+            <button class="btn btn-secondary" onclick="resetGame()">Reiniciar Joc</button>
         </div>
     </div>
 
     <div id="setup-screen" class="screen">
         <div class="neon-logo" style="font-size: 2rem;">Qui juga?</div>
-        <input type="text" id="player-input" placeholder="Nom del jugador...">
-        <button class="btn btn-primary" onclick="addPlayer()">Afegir Jugador</button>
-        <div id="player-list-setup" style="color: var(--neon); font-size: 0.9rem; margin: 10px 0;"></div>
+        
+        <div style="display:flex; gap:10px; margin-bottom: 10px;">
+            <input type="text" id="player-input" placeholder="Nom..." style="width:160px;">
+            <button class="btn btn-primary" onclick="addPlayer()" style="width:90px; padding:10px; border-radius:12px;">Afegir</button>
+        </div>
+        
+        <div id="player-list-setup"></div>
 
-        <div id="mode-selection-area" style="display:none; background: #1a1a1a; padding: 15px; border-radius: 20px; border: 1px solid var(--neon); width: 100%;">
-            <p style="font-size: 0.8rem; font-weight: bold;">TRIA MODE DE JOC:</p>
+        <div id="game-config-area" class="config-box" style="display:none;">
+            <label class="label-text">CARTES PER GUANYAR:</label>
+            <input type="number" id="win-condition" value="5" min="2" max="20" style="width:80px; margin-bottom:15px;">
+            
+            <label class="label-text">MODE DE JOC:</label>
             <div class="btn-list">
                 <button id="mode-exact" class="btn btn-outline" style="width:100%;" onclick="setMode('exact')">ANY EXACTE</button>
-                <button id="mode-timeline" class="btn btn-outline" style="width:100%;" onclick="setMode('timeline')">HITSTER (LINIA DEL TEMPS)</button>
+                <button id="mode-timeline" class="btn btn-outline" style="width:100%;" onclick="setMode('timeline')">LINIA DEL TEMPS</button>
             </div>
-            <button class="btn btn-primary" style="width:100%; margin-top:15px;" onclick="jugarAleatori()">COMENÇAR PARTIDA</button>
+            <button class="btn btn-primary" style="width:100%; margin-top:20px; border:2px solid white;" onclick="jugarAleatori()">COMENÇAR PARTIDA</button>
         </div>
         <button class="btn btn-secondary" onclick="goToMenu()">Tornar</button>
     </div>
 
     <div id="game-screen" class="screen">
-        <div id="turn-indicator">CARREGANT TORN...</div>
-        <div class="neon-logo" style="font-size: 1.8rem;">Sonabé!</div>
-
+        <div id="turn-indicator">CARREGANT...</div>
         <button class="play-button" onclick="handlePlayClick()">
             <div class="play-icon" id="icon-play"></div>
             <div class="stop-icon" id="icon-stop"></div>
@@ -121,11 +126,11 @@
             <div id="guess-result" style="font-weight: 900; font-size: 1.5rem;"></div>
             <div id="song-year" class="year-badge">----</div>
             <img id="album-img" class="album-art" src="">
-            <div id="song-title" style="font-weight: bold; font-size: 1.1rem; padding: 0 10px;"></div>
-            <div id="song-artist" style="color: var(--primary); font-size: 1rem;"></div>
+            <div id="song-title" style="font-weight: bold; font-size: 1rem;"></div>
+            <div id="song-artist" style="color: var(--primary); font-size: 0.9rem;"></div>
             <button class="btn btn-primary" onclick="nextTurn()">Següent Cançó</button>
         </div>
-        <button class="btn btn-secondary" onclick="goToMenu()" style="width:120px; font-size:0.6rem; margin-top:20px;">Menú</button>
+        <button class="btn btn-secondary" onclick="goToMenu()" style="width:100px; font-size:0.6rem; margin-top:15px;">Menú</button>
     </div>
 
     <div id="scanner-screen" class="screen">
@@ -135,9 +140,10 @@
     </div>
 
     <div id="winner-screen">
-        <div class="neon-logo">GUANYADOR!</div>
-        <h1 id="winner-name" style="color:var(--neon); font-size: 3rem;">NOM</h1>
-        <button class="btn btn-primary" onclick="resetGame()">TORNAR A JUGAR</button>
+        <div class="neon-logo">VICTÒRIA!</div>
+        <h1 id="winner-name" style="color:var(--neon); font-size: 3rem; margin:10px 0;">NOM</h1>
+        <p>Ets un geni musical!</p>
+        <button class="btn btn-primary" onclick="resetGame()">TORNAR A COMENÇAR</button>
     </div>
 
     <div id="all-boards" class="board-container" style="display:none;"></div>
@@ -150,14 +156,15 @@
         const appleId = params.get('id');
         const isRandom = params.get('mode') === 'rand';
 
-        let gameState = { players: [], currentTurn: 0, mode: 'exact', playedIds: [] };
+        // MEMÒRIA v22
+        let gameState = { players: [], currentTurn: 0, mode: 'exact', playedIds: [], winCondition: 5 };
         let fadeInterval = null;
 
         function loadGame() {
-            const saved = localStorage.getItem('sonabe_v20');
+            const saved = localStorage.getItem('sonabe_v22');
             if (saved) gameState = JSON.parse(saved);
         }
-        function saveGame() { localStorage.setItem('sonabe_v20', JSON.stringify(gameState)); }
+        function saveGame() { localStorage.setItem('sonabe_v22', JSON.stringify(gameState)); }
 
         window.onload = () => {
             loadGame();
@@ -174,45 +181,58 @@
             }
         };
 
-        // --- SISTEMA DE FADE ---
+        // --- SISTEMA D'ÀUDIO ---
         function fadeIn() {
-            clearInterval(fadeInterval);
-            audio.volume = 0;
-            audio.play();
+            clearInterval(fadeInterval); audio.volume = 0; audio.play();
             fadeInterval = setInterval(() => {
                 if (audio.volume < 0.9) audio.volume += 0.1;
                 else { audio.volume = 1; clearInterval(fadeInterval); }
             }, 60); 
         }
-
         function fadeOut(callback) {
             clearInterval(fadeInterval);
             fadeInterval = setInterval(() => {
                 if (audio.volume > 0.1) audio.volume -= 0.1;
                 else {
-                    audio.volume = 0;
-                    audio.pause();
-                    clearInterval(fadeInterval);
+                    audio.volume = 0; audio.pause(); clearInterval(fadeInterval);
                     if (callback) callback();
                 }
             }, 60);
         }
-
         function handlePlayClick() {
-            if (audio.paused) {
-                document.getElementById('icon-play').style.display='none';
-                document.getElementById('icon-stop').style.display='block';
-                fadeIn();
-            } else {
-                document.getElementById('icon-play').style.display='block';
-                document.getElementById('icon-stop').style.display='none';
-                fadeOut();
+            if (audio.paused) { document.getElementById('icon-play').style.display='none'; document.getElementById('icon-stop').style.display='block'; fadeIn(); }
+            else { document.getElementById('icon-play').style.display='block'; document.getElementById('icon-stop').style.display='none'; fadeOut(); }
+        }
+
+        // --- CONFIGURACIÓ ---
+        function showSetup() { switchScreen('setup-screen'); updateSetupList(); }
+        
+        function addPlayer() {
+            const input = document.getElementById('player-input');
+            const name = input.value.trim();
+            if (name) {
+                const startYear = Math.floor(Math.random() * (2026 - 1930 + 1)) + 1930;
+                gameState.players.push({ name: name, cards: [startYear] });
+                input.value = ""; saveGame(); updateSetupList(); renderBoards();
             }
         }
 
-        // --- JOC ---
-        function showSetup() { switchScreen('setup-screen'); updateSetupList(); }
-        
+        function deletePlayer(index) {
+            gameState.players.splice(index, 1);
+            saveGame(); updateSetupList(); renderBoards();
+        }
+
+        function updateSetupList() {
+            const list = document.getElementById('player-list-setup');
+            list.innerHTML = gameState.players.map((p, i) => `
+                <div class="player-tag">
+                    <span>👤 ${p.name.toUpperCase()} (Inici: ${p.cards[0]})</span>
+                    <span class="del-btn" onclick="deletePlayer(${i})">✕</span>
+                </div>
+            `).join('');
+            document.getElementById('game-config-area').style.display = (gameState.players.length > 0) ? 'block' : 'none';
+        }
+
         function setMode(m) {
             gameState.mode = m;
             document.getElementById('mode-exact').style.borderColor = (m==='exact') ? 'var(--neon)' : '#444';
@@ -220,6 +240,7 @@
             saveGame();
         }
 
+        // --- LÒGICA DE JOC ---
         function switchScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
@@ -235,35 +256,16 @@
             }
         }
 
-        function addPlayer() {
-            const input = document.getElementById('player-input');
-            const name = input.value.trim();
-            if (name) {
-                const startYear = Math.floor(Math.random() * (2026 - 1930 + 1)) + 1930;
-                gameState.players.push({ name: name, cards: [startYear] });
-                input.value = "";
-                saveGame();
-                updateSetupList();
-                renderBoards();
-            }
-        }
-
-        function updateSetupList() {
-            const list = document.getElementById('player-list-setup');
-            list.innerHTML = gameState.players.map(p => `<div>👤 ${p.name.toUpperCase()} (Carta: ${p.cards[0]})</div>`).join('');
-            if (gameState.players.length > 0) document.getElementById('mode-selection-area').style.display = 'block';
-        }
-
         function renderBoards() {
             const container = document.getElementById('all-boards');
-            container.innerHTML = "<h3>Tauler de Joc</h3>";
+            container.innerHTML = "<h3>Línies del temps</h3>";
             gameState.players.forEach((p, i) => {
                 const isTurn = (i === gameState.currentTurn && appleId);
                 const activeClass = isTurn ? 'active-player-row' : '';
                 const sorted = [...p.cards].sort((a,b) => a-b);
                 container.innerHTML += `
                     <div class="player-row ${activeClass}">
-                        <div style="font-size: 0.8rem; font-weight: bold; color: var(--primary);">${p.name.toUpperCase()} (${p.cards.length}/5)</div>
+                        <div style="font-size: 0.8rem; font-weight: bold; color: var(--primary);">${p.name.toUpperCase()} (${p.cards.length}/${gameState.winCondition})</div>
                         <div class="timeline">${sorted.map(y => `<div class="year-card">${y}</div>`).join('')}</div>
                     </div>`;
             });
@@ -286,8 +288,7 @@
                 const r = await fetch(`https://itunes.apple.com/lookup?id=${id}&country=es`);
                 const d = await r.json();
                 if (d.results.length > 0) {
-                    const song = d.results[0];
-                    audio.src = song.previewUrl;
+                    const song = d.results[0]; audio.src = song.previewUrl;
                     document.getElementById('album-img').src = song.artworkUrl100.replace('100x100', '600x600');
                     document.getElementById('song-title').innerText = song.trackName;
                     document.getElementById('song-artist').innerText = song.artistName;
@@ -302,64 +303,37 @@
             showResult(guess === real);
         }
 
-        // --- LÒGICA D'ANYS IGUALS MILLORADA ---
         function checkTimelineGuess(slotIndex) {
             const real = parseInt(document.getElementById('song-year').innerText);
             const player = gameState.players[gameState.currentTurn];
             const sorted = [...player.cards].sort((a,b) => a-b);
-            let isCorrect = false;
-
-            if (slotIndex === -1) { 
-                // Més antic: correcte si és menor o IGUAL al primer
-                isCorrect = real <= sorted[0];
-            } else if (slotIndex === sorted.length - 1) { 
-                // Més nou: correcte si és major o IGUAL a l'últim
-                isCorrect = real >= sorted[sorted.length - 1];
-            } else { 
-                // Entremig: correcte si està entre els dos (inclosos)
-                isCorrect = real >= sorted[slotIndex] && real <= sorted[slotIndex + 1];
-            }
+            let isCorrect = (slotIndex === -1) ? (real <= sorted[0]) : (slotIndex === sorted.length - 1) ? (real >= sorted[sorted.length - 1]) : (real >= sorted[slotIndex] && real <= sorted[slotIndex + 1]);
             showResult(isCorrect);
         }
 
         function showResult(correct) {
-            fadeOut(); 
+            fadeOut();
             const real = parseInt(document.getElementById('song-year').innerText);
             const player = gameState.players[gameState.currentTurn];
             if (correct) {
-                player.cards.push(real);
-                saveGame();
-                renderBoards();
+                player.cards.push(real); saveGame(); renderBoards();
                 document.getElementById('guess-result').innerText = "✅ ENCERTAT!";
                 document.getElementById('guess-result').style.color = "#28a745";
-                if (player.cards.length >= 5) {
-                    setTimeout(() => {
-                        document.getElementById('winner-name').innerText = player.name.toUpperCase();
-                        document.getElementById('winner-screen').style.display = 'flex';
-                    }, 1000);
+                if (player.cards.length >= gameState.winCondition) {
+                    setTimeout(() => { document.getElementById('winner-name').innerText = player.name.toUpperCase(); document.getElementById('winner-screen').style.display = 'flex'; }, 800);
                 }
-            } else {
-                document.getElementById('guess-result').innerText = "❌ INCORRECTE";
-                document.getElementById('guess-result').style.color = "#fa2d48";
-            }
-            document.getElementById('ui-exact').style.display = 'none';
-            document.getElementById('ui-timeline').style.display = 'none';
-            document.getElementById('solution-card').style.display = 'flex';
+            } else { document.getElementById('guess-result').innerText = "❌ INCORRECTE"; document.getElementById('guess-result').style.color = "#fa2d48"; }
+            document.getElementById('ui-exact').style.display = 'none'; document.getElementById('ui-timeline').style.display = 'none'; document.getElementById('solution-card').style.display = 'flex';
         }
 
-        function nextTurn() {
-            fadeOut(() => {
-                gameState.currentTurn = (gameState.currentTurn + 1) % gameState.players.length;
-                saveGame();
-                if (isRandom) jugarAleatori(); else goToMenu();
-            });
-        }
+        function nextTurn() { fadeOut(() => { gameState.currentTurn = (gameState.currentTurn + 1) % gameState.players.length; saveGame(); if (isRandom) jugarAleatori(); else goToMenu(); }); }
 
         async function jugarAleatori() {
+            gameState.winCondition = parseInt(document.getElementById('win-condition').value) || 5;
+            saveGame();
             const sheet = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTSKbhu-nwl5Mrq1-_WiGPQyiflqbb3a5C9BRTTDWgwMNqTur9_8GBODKlJC9-OHol7EhIzap9Yv_lF/pub?output=csv&t=" + Date.now();
             try {
-                const r = await fetch(sheet);
-                const t = await r.text();
+                const r = await fetch(sheet); const t = await r.text();
                 const lines = t.split("\n").slice(1);
                 const available = lines.map(l => {
                     const c = l.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
@@ -367,13 +341,9 @@
                     const id = (url.match(/id=(\d+)/) || [])[1];
                     return { url, id };
                 }).filter(s => s.url.includes("http") && !gameState.playedIds.includes(s.id));
-
-                if (available.length > 0) {
-                    window.location.href = available[Math.floor(Math.random()*available.length)].url + "&mode=rand";
-                } else {
-                    alert("No queden cançons!");
-                }
-            } catch (e) { alert("Error de xarxa"); }
+                if (available.length > 0) window.location.href = available[Math.floor(Math.random()*available.length)].url + "&mode=rand";
+                else alert("S'han acabat les cançons!");
+            } catch (e) { alert("Error xarxa"); }
         }
 
         function goToMenu() { fadeOut(() => window.location.href = window.location.pathname); }
@@ -384,7 +354,7 @@
                 qrcode.stop().then(() => { window.location.href = text; });
             });
         }
-        function resetGame() { if(confirm("Reiniciar?")) { localStorage.removeItem('sonabe_v20'); goToMenu(); } }
+        function resetGame() { if(confirm("Vols reiniciar la partida sencera?")) { localStorage.removeItem('sonabe_v22'); goToMenu(); } }
     </script>
 </body>
 </html>
