@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sonabé! 🎶 - Versió 50</title>
+    <title>Sonabé! 🎶 - Versió 51</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
         :root { --primary: #fa2d48; --neon: #ff007f; --bg: #121212; }
@@ -81,7 +81,7 @@
                 <button class="btn btn-primary" onclick="checkGuessExact()">Endevinar</button>
             </div>
             <div id="ui-timeline" class="btn-list" style="display:none;">
-                <p>On va aquesta cançó?</p>
+                <p>En quina posició va la cançó?</p>
                 <div id="timeline-slots" class="timeline" style="justify-content: center;"></div>
             </div>
         </div>
@@ -111,13 +111,15 @@
         const audio = document.getElementById('audio-player');
         const params = new URLSearchParams(window.location.search);
         const appleId = params.get('id');
+
+        // MEMÒRIA v51
         let gameState = { players: [], currentTurn: 0, mode: 'timeline', playedIds: [], winCondition: 5 };
 
         function load() {
-            const saved = localStorage.getItem('sonabe_v50');
+            const saved = localStorage.getItem('sonabe_v51');
             if (saved) gameState = JSON.parse(saved);
         }
-        function save() { localStorage.setItem('sonabe_v50', JSON.stringify(gameState)); }
+        function save() { localStorage.setItem('sonabe_v51', JSON.stringify(gameState)); }
 
         load();
 
@@ -134,9 +136,7 @@
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById('game-screen').classList.add('active');
             
-            const hasPlayers = gameState.players.length > 0;
-            
-            if (hasPlayers) {
+            if (gameState.players.length > 0) {
                 const actual = gameState.players[gameState.currentTurn];
                 document.getElementById('ui-online-mode').style.display = 'block';
                 document.getElementById('ui-cards-mode').style.display = 'none';
@@ -158,20 +158,11 @@
             }
         }
 
-        function revealSolutionSolo() {
-            audio.pause();
-            document.getElementById('ui-cards-mode').style.display = 'none';
-            document.getElementById('solution-card').style.display = 'flex';
-        }
-
-        function nextAction() {
-            if (gameState.players.length > 0) {
-                gameState.currentTurn = (gameState.currentTurn + 1) % gameState.players.length;
-                save();
-                if (params.get('mode') === 'rand') jugarAleatori(); else goToMenu();
-            } else {
-                startScanner();
-            }
+        // SETUP
+        function openSetup() {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('setup-screen').classList.add('active');
+            updateSetupList();
         }
 
         function addPlayer() {
@@ -183,14 +174,22 @@
                 save(); updateSetupList(); renderBoards();
             }
         }
+
         function deletePlayer(i) { gameState.players.splice(i, 1); save(); updateSetupList(); renderBoards(); }
+
         function updateSetupList() {
             const list = document.getElementById('player-list-setup');
             list.innerHTML = gameState.players.map((p, i) => `<div class="player-item"><span>👤 ${p.name.toUpperCase()}</span><span class="del-btn" onclick="deletePlayer(${i})">✕</span></div>`).join('');
             document.getElementById('config-area').style.display = (gameState.players.length > 0) ? 'block' : 'none';
             setMode(gameState.mode);
         }
-        function setMode(m) { gameState.mode = m; document.getElementById('mode-timeline').className = (m === 'timeline') ? 'btn mode-selected' : 'btn btn-outline'; document.getElementById('mode-exact').className = (m === 'exact') ? 'btn mode-selected' : 'btn btn-outline'; save(); }
+
+        function setMode(m) {
+            gameState.mode = m;
+            document.getElementById('mode-timeline').className = (m === 'timeline') ? 'btn mode-selected' : 'btn btn-outline';
+            document.getElementById('mode-exact').className = (m === 'exact') ? 'btn mode-selected' : 'btn btn-outline';
+            save();
+        }
 
         function renderBoards() {
             const container = document.getElementById('all-boards');
@@ -210,6 +209,7 @@
             sorted.forEach((y, i) => { container.innerHTML += `<div class="year-card">${y}</div>`; container.innerHTML += `<button class="slot-btn" onclick="checkTimelineGuess(${i})">${(i === sorted.length-1) ? "NOU" : "ENTRE"}</button>`; });
         }
 
+        // LOGICA REPRODUCTOR
         async function loadSong(id) {
             try {
                 const r = await fetch(`https://itunes.apple.com/lookup?id=${id}&country=es`);
@@ -243,9 +243,28 @@
             document.getElementById('ui-online-mode').style.display = 'none'; document.getElementById('solution-card').style.display = 'flex';
         }
 
-        function goToMenu() { window.location.href = window.location.pathname; }
+        function revealSolutionSolo() { audio.pause(); document.getElementById('ui-cards-mode').style.display = 'none'; document.getElementById('solution-card').style.display = 'flex'; }
+
+        function nextAction() {
+            if (gameState.players.length > 0) {
+                gameState.currentTurn = (gameState.currentTurn + 1) % gameState.players.length;
+                save();
+                if (params.get('mode') === 'rand') jugarAleatori(); else goToMenu();
+            } else { startScanner(); }
+        }
+
+        // REINICI TOTAL CORREGIT
+        function resetGame() { 
+            if(confirm("Segur que vols reiniciar-ho tot de zero?")) { 
+                localStorage.removeItem('sonabe_v51'); 
+                gameState = { players: [], currentTurn: 0, mode: 'timeline', playedIds: [], winCondition: 5 };
+                // Neteja la URL (per si hi ha paràmetres com ?id=...) i recarrega
+                window.location.href = window.location.origin + window.location.pathname; 
+            } 
+        }
+
+        function goToMenu() { window.location.href = window.location.origin + window.location.pathname; }
         function startScanner() { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById('scanner-screen').classList.add('active'); const q = new Html5Qrcode("reader"); q.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (t) => { q.stop().then(() => { window.location.href = t; }); }); }
-        function resetGame() { if(confirm("Vols esborrar tota la partida?")) { localStorage.removeItem('sonabe_v50'); goToMenu(); } }
         async function jugarAleatori() {
             save();
             const sheet = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTSKbhu-nwl5Mrq1-_WiGPQyiflqbb3a5C9BRTTDWgwMNqTur9_8GBODKlJC9-OHol7EhIzap9Yv_lF/pub?output=csv&t=" + Date.now();
