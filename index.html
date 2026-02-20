@@ -11,34 +11,38 @@
         body {
             background-color: #121212; color: white;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
             min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box;
+            text-align: center;
         }
 
-        /* Pantalles verticals */
-        .screen { display: none; flex-direction: column; align-items: center; width: 100%; max-width: 400px; gap: 20px; }
-        .active { display: flex; }
-
+        /* Centrat de logotip i pantalles */
         .neon-logo {
             font-weight: bold; font-size: 3.2rem; text-transform: uppercase; color: #fff;
             text-shadow: 0 0 10px #fff, 0 0 20px var(--neon), 0 0 40px var(--neon);
-            margin-bottom: 10px; text-align: center;
+            margin-bottom: 20px; width: 100%;
         }
 
-        /* Llista de botons vertical */
-        .btn-list { display: flex; flex-direction: column; gap: 15px; width: 100%; align-items: center; }
+        .screen { display: none; flex-direction: column; align-items: center; width: 100%; max-width: 400px; gap: 20px; }
+        .active { display: flex; }
 
+        /* Botons i Inputs */
+        .btn-list { display: flex; flex-direction: column; gap: 15px; width: 100%; align-items: center; }
         .btn {
             background: rgba(255,255,255,0.1); border: 1px solid #444; color: #eee;
             padding: 18px 30px; border-radius: 40px; cursor: pointer; font-weight: bold;
-            text-transform: uppercase; font-size: 0.9rem; width: 280px;
-            transition: all 0.2s; text-decoration: none; text-align: center;
+            text-transform: uppercase; font-size: 0.9rem; width: 280px; transition: all 0.2s;
         }
         .btn-primary { background-color: var(--primary); border: none; box-shadow: 0 0 20px rgba(250, 45, 72, 0.4); color: white; }
         .btn-outline { background-color: transparent; border: 2px solid var(--primary); color: var(--primary); }
         .btn-secondary { background: rgba(255,255,255,0.05); border: 1px solid #666; color: #ccc; font-size: 0.7rem; width: 180px; }
 
-        /* Reproductor circular */
+        input[type="number"], input[type="text"] { 
+            padding: 15px; border-radius: 10px; border: 1px solid var(--neon); 
+            background: #222; color: white; text-align: center; font-size: 1.2rem; width: 200px; 
+        }
+
+        /* Joc */
         .play-button {
             width: 120px; height: 120px; background-color: var(--primary); border-radius: 50%;
             display: flex; align-items: center; justify-content: center; cursor: pointer;
@@ -47,21 +51,18 @@
         .play-icon { width: 0; height: 0; border-top: 25px solid transparent; border-bottom: 25px solid transparent; border-left: 40px solid white; margin-left: 10px; }
         .stop-icon { width: 40px; height: 40px; background-color: white; border-radius: 6px; display: none; }
 
-        /* Solució i Album Art */
-        #solution-card { display: none; flex-direction: column; align-items: center; width: 100%; gap: 10px; animation: fadeIn 0.5s ease; }
+        #solution-card { display: none; flex-direction: column; align-items: center; gap: 10px; animation: fadeIn 0.5s ease; }
         .album-art { width: 200px; height: 200px; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
         .year-badge { background: white; color: black; font-weight: 900; font-size: 2.5rem; padding: 5px 35px; border-radius: 15px; }
 
-        /* Tauler de jugadors (Estil Hitster) */
-        .board-container { width: 100%; max-width: 380px; margin-top: 30px; border-top: 1px solid #333; padding-top: 20px; }
+        /* Tauler Hitster */
+        .board-container { width: 100%; max-width: 380px; margin-top: 20px; border-top: 1px solid #333; padding-top: 20px; }
         .player-row { background: #1e1e1e; padding: 12px; border-radius: 15px; margin-bottom: 10px; border-left: 5px solid var(--primary); text-align: left; }
         .active-turn { border: 2px solid white; box-shadow: 0 0 15px var(--primary); }
         .timeline { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
         .year-card { background: white; color: black; font-size: 0.8rem; font-weight: bold; padding: 3px 10px; border-radius: 5px; }
 
-        input[type="text"] { padding: 15px; border-radius: 10px; width: 250px; border: 1px solid var(--neon); background: #222; color: white; text-align: center; }
         #reader { width: 300px; border: 2px solid var(--neon); border-radius: 15px; overflow: hidden; }
-
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
@@ -90,28 +91,26 @@
 
     <div id="game-screen" class="screen">
         <div class="neon-logo" style="font-size: 1.8rem;">Sonabé!</div>
-        <div id="turn-msg" style="color: var(--primary); font-weight: bold; text-transform: uppercase;"></div>
-
-        <div id="solution-card">
-            <div id="song-year" class="year-badge">----</div>
-            <img id="album-img" class="album-art" src="">
-            <div id="song-title" style="font-weight: bold; font-size: 1.2rem;"></div>
-            <div id="song-artist" style="color: var(--primary);"></div>
-        </div>
+        <div id="turn-msg" style="color: var(--primary); font-weight: bold;"></div>
 
         <button class="play-button" onclick="togglePlay()">
             <div class="play-icon" id="icon-play"></div>
             <div class="stop-icon" id="icon-stop"></div>
         </button>
 
-        <button id="reveal-btn" class="btn btn-primary" onclick="revealSolution()">Revelar Solució</button>
+        <div id="guess-section" style="margin-top: 10px;">
+            <p>Quin any es va publicar?</p>
+            <input type="number" id="year-guess" placeholder="Ex: 1995">
+            <button class="btn btn-primary" style="margin-top: 10px;" onclick="checkGuess()">Endevinar</button>
+        </div>
 
-        <div id="hit-controls" style="display:none; flex-direction: column; align-items: center; gap: 10px;">
-            <p style="font-size: 0.8rem; color: #666;">Ha encertat la posició?</p>
-            <div style="display: flex; gap: 10px;">
-                <button class="btn btn-primary" style="width: 130px; background: #28a745;" onclick="processResult(true)">SÍ ✅</button>
-                <button class="btn btn-secondary" style="width: 130px;" onclick="processResult(false)">NO ❌</button>
-            </div>
+        <div id="solution-card">
+            <div id="guess-result" style="font-weight: bold; font-size: 1.2rem; margin-bottom: 5px;"></div>
+            <div id="song-year" class="year-badge">----</div>
+            <img id="album-img" class="album-art" src="">
+            <div id="song-title" style="font-weight: bold; font-size: 1.1rem;"></div>
+            <div id="song-artist" style="color: var(--primary); margin-bottom: 10px;"></div>
+            <button class="btn btn-primary" onclick="nextTurnFlow()">Següent Torn</button>
         </div>
     </div>
 
@@ -131,9 +130,9 @@
         const appleId = params.get('id');
         const isRandom = params.get('mode') === 'rand';
 
-        // Estat persistent del joc
-        let gameState = JSON.parse(localStorage.getItem('sonabe_v_simple')) || { players: [], currentTurn: 0 };
+        let gameState = JSON.parse(localStorage.getItem('sonabe_v6')) || { players: [], currentTurn: 0 };
         let songData = null;
+        let lastHit = false;
 
         window.onload = () => {
             if (appleId) {
@@ -152,7 +151,6 @@
             }
         }
 
-        // --- MULTIJUGADOR ---
         function showSetup() { switchScreen('setup-screen'); updateSetupList(); }
 
         function addPlayer() {
@@ -186,7 +184,6 @@
             });
         }
 
-        // --- MÚSICA I GOOGLE ---
         async function loadSong(id) {
             try {
                 const r = await fetch(`https://itunes.apple.com/lookup?id=${id}&country=es`);
@@ -202,8 +199,44 @@
             } catch (e) { console.error(e); }
         }
 
+        function togglePlay() {
+            if (audio.paused) { audio.play(); document.getElementById('icon-play').style.display='none'; document.getElementById('icon-stop').style.display='block'; }
+            else { audio.pause(); document.getElementById('icon-play').style.display='block'; document.getElementById('icon-stop').style.display='none'; }
+        }
+
+        function checkGuess() {
+            const guess = document.getElementById('year-guess').value;
+            const realYear = document.getElementById('song-year').innerText;
+            
+            if (!guess) { alert("Posa un any!"); return; }
+
+            document.getElementById('guess-section').style.display = 'none';
+            document.getElementById('solution-card').style.display = 'flex';
+            
+            if (guess == realYear) {
+                document.getElementById('guess-result').innerText = "✅ ENCERTAT!";
+                document.getElementById('guess-result').style.color = "#28a745";
+                lastHit = true;
+            } else {
+                document.getElementById('guess-result').innerText = "❌ INCORRECTE";
+                document.getElementById('guess-result').style.color = "#fa2d48";
+                lastHit = false;
+            }
+        }
+
+        function nextTurnFlow() {
+            if (lastHit && gameState.players.length > 0) {
+                gameState.players[gameState.currentTurn].cards.push(parseInt(document.getElementById('song-year').innerText));
+            }
+            if (gameState.players.length > 0) {
+                gameState.currentTurn = (gameState.currentTurn + 1) % gameState.players.length;
+            }
+            save();
+            if (isRandom) jugarAleatori(); else window.location.href = window.location.pathname;
+        }
+
         async function jugarAleatori() {
-            document.getElementById('status-msg').innerText = "CONNECTANT AMB GOOGLE...";
+            document.getElementById('status-msg').innerText = "TRIANT CANÇÓ...";
             const sheet = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTSKbhu-nwl5Mrq1-_WiGPQyiflqbb3a5C9BRTTDWgwMNqTur9_8GBODKlJC9-OHol7EhIzap9Yv_lF/pub?output=csv&cache=" + Math.random();
             try {
                 const r = await fetch(sheet);
@@ -216,27 +249,6 @@
             } catch (e) { alert("Error de connexió"); }
         }
 
-        // --- CONTROLS ---
-        function togglePlay() {
-            if (audio.paused) { audio.play(); document.getElementById('icon-play').style.display='none'; document.getElementById('icon-stop').style.display='block'; }
-            else { audio.pause(); document.getElementById('icon-play').style.display='block'; document.getElementById('icon-stop').style.display='none'; }
-        }
-
-        function revealSolution() {
-            document.getElementById('reveal-btn').style.display = 'none';
-            document.getElementById('solution-card').style.display = 'flex';
-            if (gameState.players.length > 0) document.getElementById('hit-controls').style.display = 'flex';
-        }
-
-        function processResult(hit) {
-            if (hit && gameState.players.length > 0) {
-                gameState.players[gameState.currentTurn].cards.push(parseInt(document.getElementById('song-year').innerText));
-            }
-            if (gameState.players.length > 0) gameState.currentTurn = (gameState.currentTurn + 1) % gameState.players.length;
-            save();
-            if (isRandom) jugarAleatori(); else window.location.href = window.location.pathname;
-        }
-
         function startScanner() {
             switchScreen('scanner-screen');
             const qrcode = new Html5Qrcode("reader");
@@ -245,8 +257,8 @@
             });
         }
 
-        function save() { localStorage.setItem('sonabe_v_simple', JSON.stringify(gameState)); }
-        function resetGame() { if(confirm("Esborrar partida?")) { localStorage.removeItem('sonabe_v_simple'); location.reload(); } }
+        function save() { localStorage.setItem('sonabe_v6', JSON.stringify(gameState)); }
+        function resetGame() { if(confirm("Esborrar tot?")) { localStorage.removeItem('sonabe_v6'); location.reload(); } }
     </script>
 </body>
 </html>
