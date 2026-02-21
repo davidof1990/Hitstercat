@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sonabé! 🎶 - Versió 60</title>
+    <title>Sonabé! 🎶 - Versió 61</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
         :root { --primary: #fa2d48; --neon: #ff007f; --bg: #121212; }
@@ -40,11 +40,11 @@
         .album-art { width: 160px; height: 160px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.5); }
         .year-badge { background: white; color: black; font-weight: 900; font-size: 2.5rem; padding: 5px 30px; border-radius: 10px; }
 
-        /* PANTALLA SCANNER NETEJA */
+        /* PANTALLA SCANNER */
         #scanner-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 3000; display: none; flex-direction: column; align-items: center; justify-content: center; }
         #reader { width: 100% !important; height: 100% !important; border: none !important; }
-        #reader * { border: none !important; box-shadow: none !important; } /* Matar les línies blanques de la llibreria */
-        #reader__dashboard, #reader__status_span { display: none !important; } /* Amagar textos i botons interns */
+        #reader * { border: none !important; box-shadow: none !important; }
+        #reader__dashboard, #reader__status_span { display: none !important; }
         #reader video { width: 100% !important; height: 100% !important; object-fit: cover !important; }
 
         .scanner-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 260px; height: 260px; border: 4px solid var(--neon); border-radius: 30px; box-shadow: 0 0 25px var(--neon); pointer-events: none; z-index: 3001; }
@@ -138,14 +138,14 @@
         const appleId = params.get('id');
         let html5QrCode = null;
 
-        // MEMÒRIA v60
+        // MEMÒRIA v61
         let gameState = { players: [], currentTurn: 0, mode: 'timeline', playedIds: [], winCondition: 5 };
 
         function load() {
-            const saved = localStorage.getItem('sonabe_v60');
+            const saved = localStorage.getItem('sonabe_v61');
             if (saved) gameState = JSON.parse(saved);
         }
-        function save() { localStorage.setItem('sonabe_v60', JSON.stringify(gameState)); }
+        function save() { localStorage.setItem('sonabe_v61', JSON.stringify(gameState)); }
 
         load();
 
@@ -176,14 +176,13 @@
             }
         }
 
-        // SCANNER LOGIC
+        // SCANNER
         function startScanner() {
             document.getElementById('scanner-screen').style.display = 'flex';
             html5QrCode = new Html5Qrcode("reader");
             const config = { fps: 10, qrbox: { width: 260, height: 260 } };
             
             html5QrCode.start({ facingMode: "environment" }, config, (decodedText) => {
-                // SUCCESS: Tancar càmera i anar a la URL
                 html5QrCode.stop().then(() => {
                     html5QrCode = null;
                     window.location.href = decodedText;
@@ -200,7 +199,7 @@
             } else { document.getElementById('scanner-screen').style.display = 'none'; }
         }
 
-        // SETUP & GAME
+        // SETUP
         function openSetup() { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById('setup-screen').classList.add('active'); updateSetupList(); }
         function addPlayer() { const n = document.getElementById('player-input').value.trim(); if(n){ gameState.players.push({name:n, cards:[Math.floor(Math.random()*95)+1930]}); document.getElementById('player-input').value=""; save(); updateSetupList(); renderBoards(); }}
         function updateSetupList() {
@@ -246,23 +245,46 @@
             else { document.getElementById('icon-play').style.display='block'; document.getElementById('icon-stop').style.display='none'; audio.pause(); }
         }
 
+        // --- CANVI CRÍTIC v61 ---
         function checkTimelineGuess(idx) {
             const r = parseInt(document.getElementById('song-year').innerText);
             const p = gameState.players[gameState.currentTurn];
             const s = [...p.cards].sort();
             let ok = (idx === -1) ? (r <= s[0]) : (idx === s.length-1) ? (r >= s[s.length-1]) : (r >= s[idx] && r <= s[idx+1]);
-            if(ok) { p.cards.push(r); save(); if(p.cards.length >= gameState.winCondition) { document.getElementById('winner-name').innerText=p.name; document.getElementById('winner-screen').classList.add('active'); return; }}
+            
+            if(ok) { 
+                p.cards.push(r); 
+                save(); 
+                if(p.cards.length >= gameState.winCondition) { 
+                    audio.pause(); // Parem només si algú guanya
+                    document.getElementById('winner-name').innerText=p.name; 
+                    document.getElementById('winner-screen').classList.add('active'); 
+                    return; 
+                }
+            }
+            // NO parem l'àudio aquí
             revealSolutionSolo();
         }
 
-        function revealSolutionSolo() { audio.pause(); document.getElementById('ui-online-mode').style.display='none'; document.getElementById('ui-cards-mode').style.display='none'; document.getElementById('solution-card').style.display='flex'; }
+        // --- CANVI CRÍTIC v61 ---
+        function revealSolutionSolo() { 
+            // Hem tret l'audio.pause() d'aquí
+            document.getElementById('ui-online-mode').style.display='none'; 
+            document.getElementById('ui-cards-mode').style.display='none'; 
+            document.getElementById('solution-card').style.display='flex'; 
+        }
         
+        // --- CANVI CRÍTIC v61 ---
         function nextAction() {
-            if(gameState.players.length > 0) { gameState.currentTurn = (gameState.currentTurn + 1) % gameState.players.length; save(); jugarAleatori(); }
-            else { startScanner(); }
+            audio.pause(); // Aturem la música ARA, en passar a la següent
+            if(gameState.players.length > 0) { 
+                gameState.currentTurn = (gameState.currentTurn + 1) % gameState.players.length; 
+                save(); 
+                jugarAleatori(); 
+            } else { startScanner(); }
         }
 
-        function resetGame() { localStorage.removeItem('sonabe_v60'); window.location.href = window.location.pathname; }
+        function resetGame() { localStorage.removeItem('sonabe_v61'); window.location.href = window.location.pathname; }
         function goToMenu() { window.location.href = window.location.pathname; }
 
         async function jugarAleatori() {
